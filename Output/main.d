@@ -19,8 +19,14 @@
 .\output\main.o: User\systeminit.h
 .\output\main.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\stm32f10x_flash.h
 .\output\main.o: User\system_config.h
-.\output\main.o: User\system_loop.h
 .\output\main.o: User\spinrf.h
 .\output\main.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\stm32f10x_exti.h
 .\output\main.o: User\delay.h
-.\output\main.o: User\debug.h
+.\output\main.o: User\pwm.h
+.\output\main.o: User\mpu9250.h
+.\output\main.o: User\i2c.h
+.\output\main.o: .\User\USB\STM32_USB-FS-Device_Driver\inc\usb_type.h
+.\output\main.o: .\User\USB\inc\usb_conf.h
+.\output\main.o: User\adc.h
+.\output\main.o: User\ms5611.h
+.\output\main.o: User\system_loop.h

@@ -7,7 +7,7 @@ extern volatile uint16_t radioPeriodCount,attitudeUpdatePeriodCount;
 extern uint8_t USB_DEBUG_flag; 
 extern volatile uint16_t USB_DEBUG_flag_count;
 
-void systemLoopInit(void);
+void systemLoopTim1Init(void);
 void systemLoop(void);
 
 #endif 

@@ -2,25 +2,18 @@
 #include "spinrf.h"
 #include "delay.h"
 #include "system_config.h"
-#define MAGREADDELAY 7
-#define PRESREADDELAY 10
+
 
 uint8_t radioFlag, attitudeUpdateFlag;
 volatile uint16_t radioPeriodCount,attitudeUpdatePeriodCount;
 uint8_t USB_DEBUG_flag; 
 volatile uint16_t USB_DEBUG_flag_count;
-
-enum reloadStatus
-{
-	ready,
-	reloading,
-	reloadfinish
-}magStatus = ready,presStatus = ready;
 			
 void TIM1_UP_IRQHandler(void)
 {
-	if(radioPeriodCount ++ == 1)
+	if(radioPeriodCount ++ == 50)
 	{
+		
 		radioFlag = 1;
 		radioPeriodCount = 0;
 	}
@@ -38,7 +31,7 @@ void TIM1_UP_IRQHandler(void)
 }
 
 
-void systemLoopInit(void)
+void systemLoopTim1Init(void)
 {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;	
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -47,7 +40,7 @@ void systemLoopInit(void)
     
     TIM_DeInit(TIM1);
 
-    TIM_TimeBaseStructure.TIM_Period = 7200;//定时1ms
+    TIM_TimeBaseStructure.TIM_Period = 720;//定时100us
     TIM_TimeBaseStructure.TIM_Prescaler = 10-1;//预分频 72/(10-1 +1)
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //不分频
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;

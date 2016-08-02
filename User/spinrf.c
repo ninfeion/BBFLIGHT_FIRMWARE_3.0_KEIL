@@ -3,13 +3,6 @@
 #include "system_config.h"
 #include "delay.h"
 
-static uint8_t NRF24L01_RXDATA[RX_PLOAD_WIDTH];//nrf24l01接收到的数据
-static uint8_t NRF24L01_TXDATA[RX_PLOAD_WIDTH];//nrf24l01需要发送的数据
-
-//修改该接收和发送地址，可以供多个飞行器在同一区域飞行，数据不受干扰
-static uint8_t  RX_ADDRESS[RX_ADR_WIDTH]= {0x34,0xc3,0x10,0x10,0x11};	//本机地址	
-static uint8_t  TX_ADDRESS[TX_ADR_WIDTH]= {0x34,0xc3,0x10,0x10,0x00};	//接收地址
-
 uint8_t spi2NrfInit(void)
 {
 	SPI_InitTypeDef SPI_InitStructure; 
@@ -186,78 +179,3 @@ uint8_t NRF_Read_Reg(uint8_t reg)
     return 	reg_val;
 }
 
-void nrf_RXMode(void)
-{	
-	SPI_CE_L();
-	//NRF_Write_Reg(FLUSH_RX,0xff);//清除TX FIFO寄存器	
-	NRF_Write_Buf(NRF_WRITE_REG + RX_ADDR_P0 ,RX_ADDRESS ,RX_ADR_WIDTH);	//写RX节点地址 
-	
-	NRF_Write_Reg(NRF_WRITE_REG + EN_AA , 	0x01);	//01使能通道0的自动应答
-	NRF_Write_Reg(NRF_WRITE_REG + EN_RXADDR,0x01);//使能通道0的接收地址
-	NRF_Write_Reg(NRF_WRITE_REG + RF_CH,		40);
-	
-	NRF_Write_Reg(NRF_WRITE_REG + RX_PW_P0,RX_PLOAD_WIDTH);//选择通道0的有效数据宽度 	    
-	NRF_Write_Reg(NRF_WRITE_REG + RF_SETUP,0x0f);//设置TX发射参数,0db增益,2Mbps,低噪声增益开启   
-  NRF_Write_Reg(NRF_WRITE_REG + CONFIG, 0x0f);//配置基本工作模式的参数;PWR_UP,EN_CRC,16BIT_CRC,接收模式  IRQ低中断
-  SPI_CE_H();
-	delay_us(150);
-}
-
-void nrf_TXMode(void)
-{
-  SPI_CE_L();
-  NRF_Write_Reg(FLUSH_TX,0xff);										//清除TX FIFO寄存器		  
-  NRF_Write_Buf(NRF_WRITE_REG+TX_ADDR,(u8*)TX_ADDRESS,TX_ADR_WIDTH);		//写TX节点地址 
-  NRF_Write_Buf(NRF_WRITE_REG+RX_ADDR_P0,(u8*)RX_ADDRESS,RX_ADR_WIDTH); 	//设置TX节点地址,主要为了使能ACK	  
-  NRF_Write_Reg(NRF_WRITE_REG+EN_AA,0x01);     //使能通道0的自动应答    
-  NRF_Write_Reg(NRF_WRITE_REG+EN_RXADDR,0x01); //使能通道0的接收地址  
-  NRF_Write_Reg(NRF_WRITE_REG+SETUP_RETR,0x1a);//设置自动重发间隔时间:500us + 86us;最大自动重发次数:10次
-  NRF_Write_Reg(NRF_WRITE_REG+RF_CH,40);       //设置RF通道为40
-  NRF_Write_Reg(NRF_WRITE_REG+RF_SETUP,0x0f);  //设置TX发射参数,0db增益,2Mbps,低噪声增益开启   
-  NRF_Write_Reg(NRF_WRITE_REG+CONFIG,0x0e);    //配置基本工作模式的参数;PWR_UP,EN_CRC,16BIT_CRC,接收模式,开启所有中断
-  SPI_CE_H();
-}
-
-void nrfSlaveMode(void)
-{
-	nrf_RXMode();
-	
-}
-
-uint8_t NRF24L01_RxPacket(uint8_t *rxbuf)
-{
-	uint8_t state;		
-	SPI_CE_H();
-	while(NRF_Read_IRQ()!=0); 
-	SPI_CE_L();
-	state = NRF_Read_Reg(NRFRegSTATUS); 	//读取状态寄存器的值 	 
-	NRF_Write_Reg(NRF_WRITE_REG + NRFRegSTATUS,state); //清除中断标志
-	if(state&RX_DR)//接收到数据
-	{
-		NRF_Read_Buf(RD_RX_PLOAD,rxbuf,RX_PLOAD_WIDTH);//读取数据
-		NRF_Write_Reg(FLUSH_RX,NOP);//清除RX FIFO寄存器 
-		return 0; 
-	}	   		
-	else
-	return 1;//没收到任何数据
-}		
-
-uint8_t NRF_TxPacket(uint8_t * tx_buf, uint8_t len)
-{	
-	uint8_t state;  
-	SPI_CE_L();
-  NRF_Write_Buf(WR_TX_PLOAD,tx_buf,TX_PLOAD_WIDTH);
- 	SPI_CE_H();                         
-	while(NRF_Read_IRQ()!=0); 	                            
-	state = NRF_Read_Reg(NRFRegSTATUS);                 
-	NRF_Write_Reg(NRF_WRITE_REG+NRFRegSTATUS,state); 	
-	NRF_Write_Reg(FLUSH_TX,NOP); 
-	if(state&MAX_RT)                    	//达到最大重发次数
-			return MAX_RT; 
-	else if(state&TX_DS)                  //发送完成
-					return TX_DS;
-				else						  
-					return ERROR;               	//其他原因发送失败
-}
-
-	

@@ -21,3 +21,5 @@
 .\output\usb2com.o: .\User\USB\inc\platform_config.h
 .\output\usb2com.o: .\User\USB\STM32_USB-FS-Device_Driver\inc\usb_type.h
 .\output\usb2com.o: .\User\USB\inc\usb_conf.h
+.\output\usb2com.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\stdarg.h
+.\output\usb2com.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\stdio.h

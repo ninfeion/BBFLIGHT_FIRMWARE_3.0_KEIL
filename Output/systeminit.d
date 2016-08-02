@@ -30,7 +30,4 @@
 .\output\systeminit.o: User\mpu9250.h
 .\output\systeminit.o: User\MS5611.h
 .\output\systeminit.o: User\delay.h
-.\output\systeminit.o: User\usb2com.h
-.\output\systeminit.o: .\User\USB\inc\hw_config.h
-.\output\systeminit.o: .\User\USB\inc\platform_config.h
-.\output\systeminit.o: User\debug.h
+.\output\systeminit.o: User\usart.h

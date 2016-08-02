@@ -89,15 +89,4 @@ uint8_t NRF_Write_Reg(uint8_t reg, uint8_t value);
 uint8_t NRF_Read_Reg(uint8_t reg);
 uint8_t NRF24L01_Check(void); 
 
-uint8_t NRF24L01_RxPacket(uint8_t *rxbuf);
-uint8_t NRF_TxPacket(uint8_t * tx_buf, uint8_t len);
-
-void nrf_RXMode(void);
-void nrf_TXMode(void);
-void nrfSlaveMode(void);
-
-//extern uint8_t NRF24L01_RXDATA[RX_PLOAD_WIDTH];//nrf24l01接收到的数据
-//extern uint8_t NRF24L01_TXDATA[RX_PLOAD_WIDTH];//nrf24l01需要发送的数据
-//extern uint8_t NRF_RX_FINISH_state;
-
 #endif
