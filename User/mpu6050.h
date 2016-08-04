@@ -117,9 +117,6 @@
 
 void MPU6050_Init(void);
 
-
-
-
 #endif
 
 

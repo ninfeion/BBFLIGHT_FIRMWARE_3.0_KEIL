@@ -15,14 +15,6 @@
 
 //#define _USBDEBUG_
 
-//#define _FOR_RADIO_
-
-#define _SLAVEMODE_
-#define _NRF_RXIQR_
-//#define _DELAY_DEBUG_
-
-//#define _USE6050_
-
 #endif
 
 

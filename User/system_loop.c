@@ -3,30 +3,26 @@
 #include "delay.h"
 #include "system_config.h"
 
-
-uint8_t radioFlag, attitudeUpdateFlag;
-volatile uint16_t radioPeriodCount,attitudeUpdatePeriodCount;
-uint8_t USB_DEBUG_flag; 
-volatile uint16_t USB_DEBUG_flag_count;
+uint8_t radioFlag, attitudeUpdateFlag, rxTimeOutFlag;
+volatile uint16_t radioPeriodCount, attitudeUpdatePeriodCount, rxTimeOutCount;
 			
 void TIM1_UP_IRQHandler(void)
 {
-	if(radioPeriodCount ++ == 50)
+	if(rxTimeOutCount ++ == 1500 )
 	{
-		
+		rxTimeOutFlag = 1;
+	}	
+	if(radioPeriodCount ++ == 20)
+	{
 		radioFlag = 1;
 		radioPeriodCount = 0;
 	}
-	if(attitudeUpdatePeriodCount ++ == 10)
+	if(attitudeUpdatePeriodCount ++ == 5)
 	{
 		attitudeUpdateFlag = 1;
 		attitudeUpdatePeriodCount = 0;
 	}
-	if(USB_DEBUG_flag_count ++ == 1000) //1hz
-	{
-		USB_DEBUG_flag=1;
-		USB_DEBUG_flag_count = 0;
-	}
+
 	TIM_ClearITPendingBit(TIM1, TIM_FLAG_Update); 
 }
 
@@ -36,13 +32,13 @@ void systemLoopTim1Init(void)
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;	
 	NVIC_InitTypeDef NVIC_InitStructure;
 
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1,ENABLE);  //´ò¿ªÊ±ÖÓ
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1,ENABLE);  //æ‰“å¼€æ—¶é’Ÿ
     
     TIM_DeInit(TIM1);
 
-    TIM_TimeBaseStructure.TIM_Period = 720;//¶¨Ê±100us
-    TIM_TimeBaseStructure.TIM_Prescaler = 10-1;//Ô¤·ÖÆµ 72/(10-1 +1)
-    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //²»·ÖÆµ
+    TIM_TimeBaseStructure.TIM_Period = 720;//å®šæ—¶100us(åˆ†é¢‘10ï¼‰  10us(åˆ†é¢‘ä¸º1)
+    TIM_TimeBaseStructure.TIM_Prescaler = 10-1;//10-1;//é¢„åˆ†é¢‘ 72/(10-1 +1)
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //ä¸åˆ†é¢‘
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     //TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(TIM1,&TIM_TimeBaseStructure);
@@ -50,7 +46,7 @@ void systemLoopTim1Init(void)
     /* NVIC_PriorityGroup 2 */
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
     NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_IRQn ;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;//·É¿ØÖ÷Ñ­»·»ù×¼¶¨Ê±Æ÷£¬ÓÅÏÈ¼¶¸ßÓÚ´®¿Ú´òÓ¡
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;//é£æ§ä¸»å¾ªç¯åŸºå‡†å®šæ—¶å™¨ï¼Œä¼˜å…ˆçº§é«˜äºä¸²å£æ‰“å°
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure); 

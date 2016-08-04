@@ -153,10 +153,10 @@ void Leave_LowPowerMode(void)
   }
   /*Enable SystemCoreClock*/
   //SystemInit();
-	//ÕâÀïÒª½²Ò»ÏÂÎªÊ²Ã´ÒªÆÁ±ÎSystemInit()£¬ÒòÎªdemoÖ»ÔËĞĞĞéÄâ´®¿Ú¹¦ÄÜ£¬
-	//ÔÚUSBÎ´²åÈëµÄÇé¿öÏÂ£¬ÊÇ½øÈëµÍ¹¦ºÄ×´Ì¬£¬²åÈëÊ±´ÓµÍ¹¦ºÄ×´Ì¬ÍË³öºó»áµ÷ÓÃ´Ëº¯Êı¡£
-	//µ±È»ÎÒÃÇÔÚÏîÄ¿ÖĞÒ»°ã²»»áÕâÑù£¬ÏµÍ³ÊÇ·ñÔËĞĞºÍ²åUSB½Ó¿ÚÃ»ÓĞÁªÏµ¡£
-	//ËùÒÔÎÒÔÚÏÂÎÄÖĞ°Ñ½øÈëµÍ¹¦ºÄ´úÂëÆÁ±ÎÁË£¬×ÔÈ»Ò²¾Í²»ÓÃ»½ĞÑ´úÂëÁË¡£
+	//è¿™é‡Œè¦è®²ä¸€ä¸‹ä¸ºä»€ä¹ˆè¦å±è”½SystemInit()ï¼Œå› ä¸ºdemoåªè¿è¡Œè™šæ‹Ÿä¸²å£åŠŸèƒ½ï¼Œ
+	//åœ¨USBæœªæ’å…¥çš„æƒ…å†µä¸‹ï¼Œæ˜¯è¿›å…¥ä½åŠŸè€—çŠ¶æ€ï¼Œæ’å…¥æ—¶ä»ä½åŠŸè€—çŠ¶æ€é€€å‡ºåä¼šè°ƒç”¨æ­¤å‡½æ•°ã€‚
+	//å½“ç„¶æˆ‘ä»¬åœ¨é¡¹ç›®ä¸­ä¸€èˆ¬ä¸ä¼šè¿™æ ·ï¼Œç³»ç»Ÿæ˜¯å¦è¿è¡Œå’Œæ’USBæ¥å£æ²¡æœ‰è”ç³»ã€‚
+	//æ‰€ä»¥æˆ‘åœ¨ä¸‹æ–‡ä¸­æŠŠè¿›å…¥ä½åŠŸè€—ä»£ç å±è”½äº†ï¼Œè‡ªç„¶ä¹Ÿå°±ä¸ç”¨å”¤é†’ä»£ç äº†ã€‚
 }
 
 /*******************************************************************************
@@ -205,7 +205,7 @@ void USB_Cable_Config (FunctionalState NewState)
 
 /*******************************************************************************
 * Function Name : void USB_Config(void)
-* Description   : USBÏµÍ³³õÊ¼»¯
+* Description   : USBç³»ç»Ÿåˆå§‹åŒ–
 * Input         : 
 * Output        : 
 * Other         : 
@@ -244,7 +244,7 @@ void USB_Config(void)
 
 /*******************************************************************************
 * Function Name : uint32_t USB_RxRead(uint8_t *buffter, uint32_t buffterSize)
-* Description   : ´ÓUSB½ÓÊÕ»º´æÖĞ¶ÁÊı¾İ
+* Description   : ä»USBæ¥æ”¶ç¼“å­˜ä¸­è¯»æ•°æ®
 * Input         : 
 * Output        : 
 * Other         : 
@@ -256,7 +256,7 @@ uint32_t USB_RxRead(uint8_t *buffter, uint32_t buffterSize)
 }
 /*******************************************************************************
 * Function Name : uint32_t USB_RxWrite(uint8_t *buffter, uint32_t writeLen)
-* Description   : Ğ´Êı¾İµ½USB½ÓÊÕ»º´æÖĞ
+* Description   : å†™æ•°æ®åˆ°USBæ¥æ”¶ç¼“å­˜ä¸­
 * Input         : 
 * Output        : 
 * Other         : 
@@ -268,7 +268,7 @@ uint32_t USB_RxWrite(uint8_t *buffter, uint32_t writeLen)
 }
 /*******************************************************************************
 * Function Name : uint32_t USB_TxRead(uint8_t *buffter, uint32_t buffterSize)
-* Description   : ´ÓUSB·¢ËÍ»º´æÖĞ¶ÁÊı¾İ
+* Description   : ä»USBå‘é€ç¼“å­˜ä¸­è¯»æ•°æ®
 * Input         : 
 * Output        : 
 * Other         : 
@@ -280,7 +280,7 @@ uint32_t USB_TxRead(uint8_t *buffter, uint32_t buffterSize)
 }
 /*******************************************************************************
 * Function Name : uint32_t USB_TxWrite(uint8_t *buffter, uint32_t writeLen)
-* Description   : Ğ´Êı¾İµ½USB·¢ËÍ»º´æÖĞ
+* Description   : å†™æ•°æ®åˆ°USBå‘é€ç¼“å­˜ä¸­
 * Input         : 
 * Output        : 
 * Other         : 

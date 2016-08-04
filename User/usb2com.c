@@ -1,6 +1,6 @@
 #include"usb2com.h"
 
-void USBVCOM_Init(void)
+void usbInit(void)
 {
 	USB_Config();
 }

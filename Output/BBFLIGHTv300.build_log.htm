@@ -4,24 +4,34 @@
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
 C:\BBflight\BBFLIGHT_FIRMWARE_3.0_KEIL\BBFLIGHTv300.uvprojx
-Project File Date:  04/05/2016
+Project File Date:  08/04/2016
 
 <h2>Output:</h2>
 Rebuild target 'BBFLIGHTv300'
 compiling main.c...
-User\main.c(80): warning:  #177-D: variable "i" was declared but never referenced
+User\main.c(205): warning:  #177-D: variable "sum" was declared but never referenced
+        uint16_t sum;
+User\main.c(206): warning:  #177-D: variable "i" was declared but never referenced
         uint8_t i;
-User\main.c(75): warning:  #177-D: variable "MS5611_PROM" was declared but never referenced
+User\main.c(48): warning:  #177-D: variable "MS5611_PROM" was declared but never referenced
   static uint16_t MS5611_PROM[7];
-User\main.c(76): warning:  #177-D: variable "MS5611_TEMP_NoOffset" was declared but never referenced
+User\main.c(49): warning:  #177-D: variable "MS5611_TEMP_NoOffset" was declared but never referenced
   static float MS5611_TEMP_NoOffset[2],MS5611_TaPAfterOffset[2],PRESSUREDATA;
-User\main.c(76): warning:  #177-D: variable "MS5611_TaPAfterOffset" was declared but never referenced
+User\main.c(49): warning:  #177-D: variable "MS5611_TaPAfterOffset" was declared but never referenced
   static float MS5611_TEMP_NoOffset[2],MS5611_TaPAfterOffset[2],PRESSUREDATA;
-User\main.c(76): warning:  #177-D: variable "PRESSUREDATA" was declared but never referenced
+User\main.c(49): warning:  #177-D: variable "PRESSUREDATA" was declared but never referenced
   static float MS5611_TEMP_NoOffset[2],MS5611_TaPAfterOffset[2],PRESSUREDATA;
-User\main.c: 5 warnings, 0 errors
+User\main.c: 6 warnings, 0 errors
 compiling systeminit.c...
 compiling system_loop.c...
+compiling imucal.c...
+User\imucal.c(111): warning:  #1-D: last line of file ends without a newline
+  }
+User\imucal.c(51): warning:  #177-D: variable "q0q3" was declared but never referenced
+      float q0q3 = q0*q3;
+User\imucal.c(53): warning:  #177-D: variable "q1q2" was declared but never referenced
+      float q1q2 = q1*q2;
+User\imucal.c: 3 warnings, 0 errors
 compiling delay.c...
 compiling spinrf.c...
 compiling pwm.c...
@@ -35,7 +45,6 @@ compiling adc.c...
 compiling mpu9250.c...
 compiling ms5611.c...
 compiling i2c.c...
-compiling mpu6050.c...
 compiling hw_config.c...
 compiling usb_desc.c...
 compiling usb_endp.c...
@@ -65,9 +74,9 @@ compiling stm32f10x_exti.c...
 compiling misc.c...
 compiling stm32f10x_dma.c...
 linking...
-Program Size: Code=29888 RO-data=712 RW-data=452 ZI-data=4004  
+Program Size: Code=34156 RO-data=940 RW-data=564 ZI-data=4020  
 FromELF: creating hex file...
-".\Output\BBFLIGHTv300.axf" - 0 Error(s), 7 Warning(s).
+".\Output\BBFLIGHTv300.axf" - 0 Error(s), 11 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -168,85 +177,6 @@ Full Chip Erase Done.
 Programming Done.
 Verify OK.
 Application running ...
-k Version: 3.5.1
-   * Component: ADC Version: 3.5.0
-   * Component: DMA Version: 3.5.0
-   * Component: EXTI Version: 3.5.0
-   * Component: Flash Version: 3.5.0
-   * Component: GPIO Version: 3.5.0
-   * Component: I2C Version: 3.5.0
-   * Component: PWR Version: 3.5.0
-   * Component: RCC Version: 3.5.0
-   * Component: SPI Version: 3.5.0
-   * Component: TIM Version: 3.5.0
-   * Component: USART Version: 3.5.0
-
-<h2>Collection of Component include folders:</h2>
-  C:\BBflight\BBFLIGHT_FIRMWARE_3.0_KEIL\RTE
-  C:\BBflight\BBFLIGHT_FIRMWARE_3.0_KEIL\RTE\Device\STM32F103C8
-  C:\Extra Software\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include
-  C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0
-  C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\Include
-  C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc
-
-<h2>Collection of Component Files used:</h2>
-
-   * Component: ARM::CMSIS:CORE:3.20.0
-
-   * Component: Keil::Device:Startup:1.0.0
-      Source file:   Device\Source\ARM\STM32F1xx_OPT.s
-      Source file:   Device\Source\ARM\startup_stm32f10x_md.s
-      Source file:   Device\Source\system_stm32f10x.c
-      Include file:  RTE_Driver\Config\RTE_Device.h
-
-   * Component: Keil::Device:StdPeriph Drivers:Framework:3.5.1
-      Include file:  Device\StdPeriph_Driver\inc\misc.h
-      Source file:   Device\StdPeriph_Driver\src\misc.c
-      Source file:   Device\StdPeriph_Driver\templates\stm32f10x_conf.h
-      Include file:  Device\StdPeriph_Driver\templates\stm32f10x_it.h
-      Source file:   Device\StdPeriph_Driver\templates\stm32f10x_it.c
-
-   * Component: Keil::Device:StdPeriph Drivers:ADC:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_adc.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_adc.c
-
-   * Component: Keil::Device:StdPeriph Drivers:DMA:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_dma.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_dma.c
-
-   * Component: Keil::Device:StdPeriph Drivers:EXTI:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_exti.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_exti.c
-
-   * Component: Keil::Device:StdPeriph Drivers:Flash:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_flash.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_flash.c
-
-   * Component: Keil::Device:StdPeriph Drivers:GPIO:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_gpio.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_gpio.c
-
-   * Component: Keil::Device:StdPeriph Drivers:I2C:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_i2c.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_i2c.c
-
-   * Component: Keil::Device:StdPeriph Drivers:PWR:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_pwr.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_pwr.c
-
-   * Component: Keil::Device:StdPeriph Drivers:RCC:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_rcc.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_rcc.c
-
-   * Component: Keil::Device:StdPeriph Drivers:SPI:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_spi.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_spi.c
-
-   * Component: Keil::Device:StdPeriph Drivers:TIM:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_tim.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_tim.c
-
-   * Component: Keil::Device:StdPeriph Drivers:USART:3.5.0
-      Include file:  Device\StdPeriph_Driver\inc\stm32f10x_usart.h
-      Source file:   Device\StdPeriph_Driver\src\stm32f10x_usart.c
-Target not created
+</pre>
+</body>
+</html>

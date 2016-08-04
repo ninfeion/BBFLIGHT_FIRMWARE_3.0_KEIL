@@ -31,13 +31,13 @@ void DEBUG_TIM2_Init(void)
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure; 
   NVIC_InitTypeDef NVIC_InitStructure;
 
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);  //´ò¿ªÊ±ÖÓ
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);  //æ‰“å¼€æ—¶é’Ÿ
     
   TIM_DeInit(TIM2);
 
-  TIM_TimeBaseStructure.TIM_Period = 7200;//¶¨Ê±1ms
-  TIM_TimeBaseStructure.TIM_Prescaler = 10-1;//Ô¤·ÖÆµ 72/(10-1 +1)
-  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //²»·ÖÆµ
+  TIM_TimeBaseStructure.TIM_Period = 7200;//å®šæ—¶1ms
+  TIM_TimeBaseStructure.TIM_Prescaler = 10-1;//é¢„åˆ†é¢‘ 72/(10-1 +1)
+  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //ä¸åˆ†é¢‘
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     
   TIM_TimeBaseInit(TIM2,&TIM_TimeBaseStructure);
@@ -46,7 +46,7 @@ void DEBUG_TIM2_Init(void)
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
   
   NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;//´®¿Ú´òÓ¡¶¨Ê±Æ÷£¬ÓÅÏÈ¼¶µÍÓÚ×ËÌ¬½âËã
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;//ä¸²å£æ‰“å°å®šæ—¶å™¨ï¼Œä¼˜å…ˆçº§ä½äºå§¿æ€è§£ç®—
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
@@ -160,7 +160,7 @@ void USB_printf(*TarStr,...)
 }
 
 {
-	va_list argumenttemp;//ËµÃ÷±äÁ¿argumenttemp
+	va_list argumenttemp;//è¯´æ˜å˜é‡argumenttemp
 	
 	uint8_t chartemp;
 	uint8_t DISTEMP[10];
@@ -173,7 +173,7 @@ void USB_printf(*TarStr,...)
 
 	uint16_t Dtypedatatemp;
 	
-	va_start(argumenttemp, TarStr);//argumenttemp±»³õÊ¼»¯ÎªÖ¸ÏòTarStrºóµÄµÚÒ»¸ö²ÎÊı
+	va_start(argumenttemp, TarStr);//argumenttempè¢«åˆå§‹åŒ–ä¸ºæŒ‡å‘TarStråçš„ç¬¬ä¸€ä¸ªå‚æ•°
 	while(*TarStr)
 	{
 		chartemp = *TarStr;
@@ -193,7 +193,7 @@ void USB_printf(*TarStr,...)
 						switch(* ++TarStr)
 						{
 							case 'd': 
-								Dtypedatatemp =(uint16_t) va_arg(argumenttemp, int);//½«±äÁ¿argumenttempËùÖ¸ÏòµÄuint16_tÀàĞÍµÄÖµ¸³¸øDtypedatatemp,Í¬Ê±Ê¹argumenttempÖ¸ÏòÏÂÒ»¸ö²ÎÊı
+								Dtypedatatemp =(uint16_t) va_arg(argumenttemp, int);//å°†å˜é‡argumenttempæ‰€æŒ‡å‘çš„uint16_tç±»å‹çš„å€¼èµ‹ç»™Dtypedatatemp,åŒæ—¶ä½¿argumenttempæŒ‡å‘ä¸‹ä¸€ä¸ªå‚æ•°
 								sprintf(DISTEMP,"%d",Dtypedatatemp);
 								length=0;
 								while (DISTEMP[length] != '\0')	++length;									

@@ -5,7 +5,7 @@
 
 void mpu9250Init(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;//¶¨ÒåGPIO³õÊ¼»¯½á¹¹Ìå
+	GPIO_InitTypeDef GPIO_InitStructure;//å®šä¹‰GPIOåˆå§‹åŒ–ç»“æ„ä½“
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);   
 	
@@ -25,7 +25,7 @@ void mpu9250Init(void)
 	
 	GPIO_ResetBits(GPIOB, GPIO_Pin_4);
 	
-	Single_Write(MPU9250_ADDRESS,RA_PWR_MGMT_1, 0x00);	//½â³ıĞİÃß×´Ì¬
+	Single_Write(MPU9250_ADDRESS,RA_PWR_MGMT_1, 0x00);	//è§£é™¤ä¼‘çœ çŠ¶æ€
 	delay_ms(10);//to wait for 9250 reset done
 	Single_Write(MPU9250_ADDRESS,RA_SMPLRT_DIV, 0x00);  //0x00	SAMPLE_RATE=Internal_Sample_Rate / (1 + SMPLRT_DIV)
 	Single_Write(MPU9250_ADDRESS,RA_CONFIG, 0x02); // 0x02	Set gyro sample rate to 1 kHz and DLPF to 92 Hz
@@ -34,10 +34,10 @@ void mpu9250Init(void)
 	Single_Write(MPU9250_ADDRESS,RA_ACCEL_CONFIG_2, 0x02); // Set accelerometer rate to 1 kHz and bandwidth to 92 Hz
 	
 	#ifdef USE_MAG_PASSMODE
-	  Single_Write(MPU9250_ADDRESS,RA_INT_PIN_CFG,0x02);//turn on Bypass Mode 
-		delay_ms(10);
-		Single_Write(MAG_ADDRESS,AK8963_CNTL1,0x11);
-		delay_ms(10);	
+	Single_Write(MPU9250_ADDRESS,RA_INT_PIN_CFG,0x02);//turn on Bypass Mode 
+	delay_ms(10);
+	Single_Write(MAG_ADDRESS,AK8963_CNTL1,0x11);
+	delay_ms(10);	
 	#endif
 }
 
@@ -49,7 +49,7 @@ uint8_t Get_MPU9250_ID(void)
 uint8_t Get_AK8963_ID_Bypass(void)
 {
 	Single_Write(MAG_ADDRESS,AK8963_CNTL1,0x11);//single read 
-  delay_ms(2);	
+	delay_ms(2);	
 	return Single_Read(MAG_ADDRESS, AK8963_WIA);
 }
 
@@ -71,7 +71,7 @@ bool AK8963_Check_Bypass(void)
 	
 void READ_MPU9250_ACCEL_RAW(int16_t *ACCELDATA)
 {
-	uint8_t BUF[6];//»º´æ
+	uint8_t BUF[6];//ç¼“å­˜
 	/*
 	BUF[0]=Single_Read(MPU9250_ADDRESS,RA_ACCEL_XOUT_H); 
 	BUF[1]=Single_Read(MPU9250_ADDRESS,RA_ACCEL_XOUT_L);
@@ -88,7 +88,7 @@ void READ_MPU9250_ACCEL_RAW(int16_t *ACCELDATA)
 
 void READ_MPU9250_GYRO_RAW(int16_t *GYRODATA)
 {
-	uint8_t BUF[6];//»º´æ
+	uint8_t BUF[6];//ç¼“å­˜
 	/*
 	BUF[0]=Single_Read(MPU9250_ADDRESS,RA_GYRO_XOUT_H); 
 	BUF[1]=Single_Read(MPU9250_ADDRESS,RA_GYRO_XOUT_L);
@@ -117,8 +117,8 @@ int16_t READ_MPU9250_TEMP_RAW(void)
 void READ_MPU9250_Bypass_MAG_RAW(int16_t *MAGDATA)
 { 
 	uint8_t BUF[6];
-	//Single_Write(MAG_ADDRESS,AK8963_CNTL1,0x01);//14Î» single read Ã¿¶ÁÒ»´Î£¬ak8963×Ô¶¯½øÈëpowerdownÄ£Ê½,Ã¿¶ÁÒ»´Î¶¼ÒªÖØĞÂÉèÖÃµ¥²âÁ¿Ä£Ê½ µØ´Å¶ÁµÄÖÜÆÚ²»ÄÜĞ¡ÓÚ7ms
-	Single_Write(MAG_ADDRESS,AK8963_CNTL1,0x11);//16Î» single read mode
+	//Single_Write(MAG_ADDRESS,AK8963_CNTL1,0x01);//14ä½ single read æ¯è¯»ä¸€æ¬¡ï¼Œak8963è‡ªåŠ¨è¿›å…¥powerdownæ¨¡å¼,æ¯è¯»ä¸€æ¬¡éƒ½è¦é‡æ–°è®¾ç½®å•æµ‹é‡æ¨¡å¼ åœ°ç£è¯»çš„å‘¨æœŸä¸èƒ½å°äº7ms
+	Single_Write(MAG_ADDRESS,AK8963_CNTL1,0x11);//16ä½ single read mode
 	delay_ms(2);
 	/*
 	BUF[0]=Single_Read(MAG_ADDRESS,AK8963_HXL);
@@ -139,9 +139,12 @@ void READ_MPU9250_Bypass_MAG_RAW(int16_t *MAGDATA)
 	MAGDATA[2] = (int16_t)((BUF[5] << 8) | BUF[4]);
 }
 
+void MPU9250_OFFSET(void)
+{
+}
 
 /*
-magĞŞÕıyaw
+magä¿®æ­£yaw
 boolean MPU9150Lib::read()
 {
     short intStatus;

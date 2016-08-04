@@ -1,12 +1,7 @@
 #include "nrfapp.h"
 #include "system_config.h"
 
-
-
-
-
 uint8_t i;
-
 
 void TIM2_IRQHandler(void)
 {			
@@ -92,13 +87,13 @@ void nrfTim2Init(void)
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure; 
     NVIC_InitTypeDef NVIC_InitStructure;
 
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);  //´ò¿ªÊ±ÖÓ
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);  //æ‰“å¼€æ—¶é’Ÿ
     
     TIM_DeInit(TIM2);
 
-    TIM_TimeBaseStructure.TIM_Period = 7200;//¶¨Ê±1ms
-    TIM_TimeBaseStructure.TIM_Prescaler = 10-1;//Ô¤·ÖÆµ 72/(10-1 +1)
-    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //²»·ÖÆµ
+    TIM_TimeBaseStructure.TIM_Period = 7200;//å®šæ—¶1ms
+    TIM_TimeBaseStructure.TIM_Prescaler = 10-1;//é¢„åˆ†é¢‘ 72/(10-1 +1)
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //ä¸åˆ†é¢‘
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     
     TIM_TimeBaseInit(TIM2,&TIM_TimeBaseStructure);
@@ -107,7 +102,7 @@ void nrfTim2Init(void)
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
   
     NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;//´®¿Ú´òÓ¡¶¨Ê±Æ÷£¬ÓÅÏÈ¼¶µÍÓÚ×ËÌ¬½âËã
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;//ä¸²å£æ‰“å°å®šæ—¶å™¨ï¼Œä¼˜å…ˆçº§ä½äºå§¿æ€è§£ç®—
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);

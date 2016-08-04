@@ -2,7 +2,7 @@
 #define _MS5611_H_
 #include "stm32f10x.h"
 
-#define MS5611_ADDRESS		       0XEE //111011CX CÈ¡¾öÓÚCSBµÄ²¹Âë
+#define MS5611_ADDRESS		       0XEE //111011CX Cå–å†³äºCSBçš„è¡¥ç 
 
 #define CMD_MS5611_RESET  		   0x1E
 #define CMD_MS5611_ADC_RD    		 0x00
@@ -40,7 +40,7 @@
 #define ConversionTime 10000
 #define DefaultPresInitFilterTime 50
 
-//D1²âÆøÑ¹£¬D2²âÎÂ¶È
+//D1æµ‹æ°”å‹ï¼ŒD2æµ‹æ¸©åº¦
 
 void ms5611Init(void);
 void MS5611_Reset(void);
@@ -48,7 +48,7 @@ void MS5611_PROM_READ(uint16_t *PROM_C);
 uint32_t MS5611_SendCmd_StartConversionAndGetIt(uint8_t OSR_Cmd_SelectTempOrPres);
 void MS5611_GetTempture(uint8_t SelectOsr, uint16_t *PROM_C, float *TEMPERATURE_DATA);
 void MS5611_GetPressure(uint8_t SelectOsr, uint16_t *PROM_C, float *TEMPERATURE_DATA, float *AfterOffset_TempPresDATA);
-uint8_t MS5611_GetAltitude(float *AfterOffset_TempPresDATA, float *Altitude_DATA);//return 0 »¹²»¿ÉÒÔÊä³öÕıÈ·¸ß¶È
+uint8_t MS5611_GetAltitude(float *AfterOffset_TempPresDATA, float *Altitude_DATA);//return 0 è¿˜ä¸å¯ä»¥è¾“å‡ºæ­£ç¡®é«˜åº¦
 
 #endif
 

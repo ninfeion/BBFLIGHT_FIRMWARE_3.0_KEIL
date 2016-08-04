@@ -7,7 +7,7 @@
 
 #define USB_PRINTF_BUFFER_SIZE 128
 
-void USBVCOM_Init(void);
+void usbInit(void);
 void USB_printf(uint8_t *TarStr, ...);
 
 #endif

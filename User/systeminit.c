@@ -1,78 +1,46 @@
 #include "systeminit.h"
-#include "spinrf.h"
-#include "pwm.h"
-#include "adc.h"
-#include "system_loop.h"
-#include "i2c.h"
-#ifdef _USE6050_
-	#include "mpu6050.h"
-#else
-	#include "mpu9250.h"
-#endif
-#include "MS5611.h"
-#include "delay.h"
-#ifdef _USBDEBUG_
-	#include "usb2com.h"
-	#include "debug.h"
-#else
-	#include "usart.h"
-#endif
 
-struct SYSTEM_STATE BBSYSTEM;
-
-/*
-uint8_t sysInit(void)
-{
-  sysclockInit();
-  systickInit();
-  ledInit();
-	spi2NrfInit();
-	if(NRF24L01_Check() == 1)			BBSYSTEM.NRFONLINE = 1;
-	//NRF checkºóce»áÊÇµÍµçÆ½ËùÒÔÉèÖÃÄ£Ê½ÒªÔÚºóÃæ
-	#ifdef _SLAVEMODE_
-		nrfSlaveMode();
-	#endif
-
-	adcInit();
-	i2cInit();
-	mpu9250Init();
-	if(MPU9250_Check() == TRUE)		BBSYSTEM.MPU9250ONLINE = 1;
-	ms5611Init();
-	pwmInit();	
-	systemLoopInit();
-	#ifdef _USBDEBUG_
-		USBVCOM_Init();
-		//DEBUG_TIM2_Init();
-	#else
-		//USARTInit(9600);
-	#endif	
-	
-	//enableNrfIqr();
-  return 1;
-}
-*/
+AcceptMess BBCom = {0xaa,0xaa,
+					0x00,0x00,0x00,0x00,0x00,
+					0,
+					0,0,0,0,
+					0,
+					0,
+					0,0,0,0,
+					0,0,
+					0xff,0xff};
+RespondMess BBMess = {0xaa, 0xaa,
+					  0,0,0,0,
+					  0,0,0,0,
+					  0,0,
+					  0,
+	                  0,0,
+			          0,
+	                  0xff,0xff};
+ImuData BBImu;
+SYSTEM_STATE BBSYSTEM;
 
 uint8_t sysclockInit(void)
 {
     ErrorStatus HSEStartUpStatus;
 	
-    RCC_DeInit();/* RCCÖØÖÃ */
-    RCC_HSEConfig(RCC_HSE_ON); /*Ê¹ÄÜHSE*/
+    RCC_DeInit();/* RCCé‡ç½® */
+    RCC_HSEConfig(RCC_HSE_ON); /*ä½¿èƒ½HSE*/
     HSEStartUpStatus = RCC_WaitForHSEStartUp();
-    if(HSEStartUpStatus == SUCCESS)   //Íâ²¿¾§ÕñÊ¹ÄÜ³É¹¦
+    if(HSEStartUpStatus == SUCCESS)   //å¤–éƒ¨æ™¶æŒ¯ä½¿èƒ½æˆåŠŸ
     {
-        RCC_HCLKConfig(RCC_SYSCLK_Div1); /* ÅäÖÃHCLK = SYSCLK */
-        RCC_PCLK2Config(RCC_HCLK_Div1); /* ÅäÖÃPCLK2 = HCLK */
-        RCC_PCLK1Config(RCC_HCLK_Div2); /* ÅäÖÃPCLK1 = HCLK/2 */
+        RCC_HCLKConfig(RCC_SYSCLK_Div1); /* é…ç½®HCLK = SYSCLK */
+        RCC_PCLK2Config(RCC_HCLK_Div1); /* é…ç½®PCLK2 = HCLK */
+        RCC_PCLK1Config(RCC_HCLK_Div2); /* é…ç½®PCLK1 = HCLK/2 */
 
         FLASH_SetLatency(FLASH_Latency_2);
         FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 		
-        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);  /* RCC_PLLSource_HSE_Div1ÎªÍâÖÃ¾§ÕñµÄ·ÖÆµÏµÊý;RCC_PLLMul_9Îª±¶ÆµÊý */
+        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);  /* RCC_PLLSource_HSE_Div1ä¸ºå¤–ç½®æ™¶æŒ¯çš„åˆ†é¢‘ç³»æ•°;RCC_PLLMul_9ä¸ºå€é¢‘æ•° */
         RCC_PLLCmd(ENABLE);
-        while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET); //µÈ´ýpll¹¤×÷
-        RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);   /* Ñ¡¶¨PLLÎªÏµÍ³Ö÷Ê±ÖÓ */
-        while(RCC_GetSYSCLKSource() != 0x08); //ÅÐ¶ÏpllÊÇ·ñÎªÏµÍ³Ê±ÖÓ
+        while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET); //ç­‰å¾…pllå·¥ä½œ
+        RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);   /* é€‰å®šPLLä¸ºç³»ç»Ÿä¸»æ—¶é’Ÿ */
+        while(RCC_GetSYSCLKSource() != 0x08); //åˆ¤æ–­pllæ˜¯å¦ä¸ºç³»ç»Ÿæ—¶é’Ÿ
 		return 1;
 
 	}
@@ -83,44 +51,44 @@ uint8_t sysclockInit(void)
 uint8_t systickInit(void)
 {
 	/*
-	¶ÔSysTickµÄ²Ù×÷£¬½ö±£ÁôÒÔÏÂ1¸öº¯Êý£º  
+	å¯¹SysTickçš„æ“ä½œï¼Œä»…ä¿ç•™ä»¥ä¸‹1ä¸ªå‡½æ•°ï¼š  
 	void SysTick_CLKSourceConfig(uint32_t SysTick_CLKSource); 
-	¹¦ÄÜ£ºÅäÖÃSysTickÊ±ÖÓÔ´  
-	²ÎÊý£º
-	SysTick_CLKSource£º  
-	SysTick_CLKSource_HCLK_Div8:¸ù¾ÝÊ±ÖÓ³ýÒÔ8Ñ¡ÎªSysTickÊ±ÖÓÔ´¡£
-	SysTick_CLKSource_HCLK:¸ù¾ÝSysTickÊ±ÖÓÑ¡ÎªÊ±ÖÓÔ´¡£ 
+	åŠŸèƒ½ï¼šé…ç½®SysTickæ—¶é’Ÿæº  
+	å‚æ•°ï¼š
+	SysTick_CLKSourceï¼š  
+	SysTick_CLKSource_HCLK_Div8:æ ¹æ®æ—¶é’Ÿé™¤ä»¥8é€‰ä¸ºSysTickæ—¶é’Ÿæºã€‚
+	SysTick_CLKSource_HCLK:æ ¹æ®SysTickæ—¶é’Ÿé€‰ä¸ºæ—¶é’Ÿæºã€‚ 
 
 	uint32_t SysTick_Config(uint32_t ticks);  
-	¹¦ÄÜ£ºÅäÖÃSysTickÖØ×°¼ÆÊýÖµ£¬Ê¹ÄÜÖÐ¶Ï£¬Æô¶¯ÔËÐÐ
-	²ÎÊý£º  ticks£º24Î»ÒÔÄÚµÄÖØ×°Öµ 
-	·µ»Ø£º1Ê§°Ü,0³É¹¦ */
-	return SysTick_Config(72); //¼Æ1000´ÎÊÇ1us
+	åŠŸèƒ½ï¼šé…ç½®SysTické‡è£…è®¡æ•°å€¼ï¼Œä½¿èƒ½ä¸­æ–­ï¼Œå¯åŠ¨è¿è¡Œ
+	å‚æ•°ï¼š  ticksï¼š24ä½ä»¥å†…çš„é‡è£…å€¼ 
+	è¿”å›žï¼š1å¤±è´¥,0æˆåŠŸ */
+	return SysTick_Config(72); //è®¡1000æ¬¡æ˜¯1us
 }
 
 uint8_t ledInit(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;//¶¨ÒåGPIO³õÊ¼»¯½á¹¹Ìå
+    GPIO_InitTypeDef GPIO_InitStructure;//å®šä¹‰GPIOåˆå§‹åŒ–ç»“æž„ä½“
 
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE); //Ê¹ÄÜGPOIA,GPIOB¸´ÓÃÊ±ÖÓ	   
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE); //ä½¿èƒ½GPOIA,GPIOBå¤ç”¨æ—¶é’Ÿ	   
    	
 
     /*
-    RCC_APB2Periph_AFIO ¹¦ÄÜ¸´ÓÃIOÊ±ÖÓ 
-    RCC_APB2Periph_GPIOA GPIOAÊ±ÖÓ 
-    RCC_APB2Periph_GPIOB GPIOBÊ±ÖÓ 
-    RCC_APB2Periph_GPIOC GPIOCÊ±ÖÓ 
-    RCC_APB2Periph_GPIOD GPIODÊ±ÖÓ 
-    RCC_APB2Periph_GPIOE GPIOEÊ±ÖÓ 
-    RCC_APB2Periph_ADC1 ADC1Ê±ÖÓ 
-    RCC_APB2Periph_ADC2 ADC2Ê±ÖÓ 
-    RCC_APB2Periph_TIM1 TIM1Ê±ÖÓ 
-    RCC_APB2Periph_SPI1 SPI1Ê±ÖÓ 
-    RCC_APB2Periph_USART1 USART1Ê±ÖÓ 
-    RCC_APB2Periph_ALL È«²¿APB2ÍâÉèÊ±ÖÓ
+    RCC_APB2Periph_AFIO åŠŸèƒ½å¤ç”¨IOæ—¶é’Ÿ 
+    RCC_APB2Periph_GPIOA GPIOAæ—¶é’Ÿ 
+    RCC_APB2Periph_GPIOB GPIOBæ—¶é’Ÿ 
+    RCC_APB2Periph_GPIOC GPIOCæ—¶é’Ÿ 
+    RCC_APB2Periph_GPIOD GPIODæ—¶é’Ÿ 
+    RCC_APB2Periph_GPIOE GPIOEæ—¶é’Ÿ 
+    RCC_APB2Periph_ADC1 ADC1æ—¶é’Ÿ 
+    RCC_APB2Periph_ADC2 ADC2æ—¶é’Ÿ 
+    RCC_APB2Periph_TIM1 TIM1æ—¶é’Ÿ 
+    RCC_APB2Periph_SPI1 SPI1æ—¶é’Ÿ 
+    RCC_APB2Periph_USART1 USART1æ—¶é’Ÿ 
+    RCC_APB2Periph_ALL å…¨éƒ¨APB2å¤–è®¾æ—¶é’Ÿ
     */
    	
-    //LED GPIO³õÊ¼»¯
+    //LED GPIOåˆå§‹åŒ–
     //LED_0->D3->PA4
     //LED_3->D4->PA7
     //LED_2->D5->PA6
@@ -136,30 +104,30 @@ uint8_t ledInit(void)
     LedD_off;
   
     /*
-	GPIO_Mode_AIN = 0x0,     //Ä£ÄâÊäÈë   
-	GPIO_Mode_IN_FLOATING = 0x04, //Ðü¿ÕÊäÈë   
-	GPIO_Mode_IPD = 0x28,    //ÏÂÀ­ÊäÈë   
-	GPIO_Mode_IPU = 0x48,    //ÉÏÀ­ÊäÈë   
-	GPIO_Mode_Out_OD = 0x14, //¿ªÂ©Êä³ö   
-	GPIO_Mode_Out_PP = 0x10,  //ÍÆÍìÊä³ö   
-	GPIO_Mode_AF_OD = 0x1C,   //¿ªÂ©¸´ÓÃ   
-	GPIO_Mode_AF_PP = 0x18    //ÍÆÍì¸´ÓÃ 
+	GPIO_Mode_AIN = 0x0,     //æ¨¡æ‹Ÿè¾“å…¥   
+	GPIO_Mode_IN_FLOATING = 0x04, //æ‚¬ç©ºè¾“å…¥   
+	GPIO_Mode_IPD = 0x28,    //ä¸‹æ‹‰è¾“å…¥   
+	GPIO_Mode_IPU = 0x48,    //ä¸Šæ‹‰è¾“å…¥   
+	GPIO_Mode_Out_OD = 0x14, //å¼€æ¼è¾“å‡º   
+	GPIO_Mode_Out_PP = 0x10,  //æŽ¨æŒ½è¾“å‡º   
+	GPIO_Mode_AF_OD = 0x1C,   //å¼€æ¼å¤ç”¨   
+	GPIO_Mode_AF_PP = 0x18    //æŽ¨æŒ½å¤ç”¨ 
 
-    1¡¢¸¡¿ÕÊäÈëGPIO_IN_FLOATING ¡ª¡ª¸¡¿ÕÊäÈë£¬¿ÉÒÔ×öKEYÊ¶±ð£¬RX1
-    2¡¢´øÉÏÀ­ÊäÈëGPIO_IPU¡ª¡ªIOÄÚ²¿ÉÏÀ­µç×èÊäÈë
-    3¡¢´øÏÂÀ­ÊäÈëGPIO_IPD¡ª¡ª IOÄÚ²¿ÏÂÀ­µç×èÊäÈë
-    4¡¢Ä£ÄâÊäÈëGPIO_AIN ¡ª¡ªÓ¦ÓÃADCÄ£ÄâÊäÈë£¬»òÕßµÍ¹¦ºÄÏÂÊ¡µç
-    5¡¢¿ªÂ©Êä³öGPIO_OUT_OD ¡ª¡ªIOÊä³ö0½ÓGND£¬IOÊä³ö1£¬Ðü¿Õ£¬ÐèÒªÍâ½ÓÉÏÀ­µç×è£¬²ÅÄÜÊµÏÖÊä³ö¸ßµçÆ½¡£µ±Êä³öÎª1Ê±£¬IO¿ÚµÄ×´Ì¬ÓÉÉÏÀ­µç×èÀ­¸ßµçÆ½£¬µ«ÓÉÓÚÊÇ¿ªÂ©Êä³öÄ£Ê½£¬ÕâÑùIO¿ÚÒ²¾Í¿ÉÒÔÓÉÍâ²¿µçÂ·¸Ä±äÎªµÍµçÆ½»ò²»±ä¡£¿ÉÒÔ¶ÁIOÊäÈëµçÆ½±ä»¯£¬ÊµÏÖC51µÄIOË«Ïò¹¦ÄÜ
-    6¡¢ÍÆÍìÊä³öGPIO_OUT_PP ¡ª¡ªIOÊä³ö0-½ÓGND£¬ IOÊä³ö1 -½ÓVCC£¬¶ÁÊäÈëÖµÊÇÎ´ÖªµÄ
-    7¡¢¸´ÓÃ¹¦ÄÜµÄÍÆÍìÊä³öGPIO_AF_PP ¡ª¡ªÆ¬ÄÚÍâÉè¹¦ÄÜ£¨I2CµÄSCL,SDA£©
-    8¡¢¸´ÓÃ¹¦ÄÜµÄ¿ªÂ©Êä³öGPIO_AF_OD¡ª¡ªÆ¬ÄÚÍâÉè¹¦ÄÜ£¨TX1,MOSI,MISO.SCK.SS£©
+    1ã€æµ®ç©ºè¾“å…¥GPIO_IN_FLOATING â€”â€”æµ®ç©ºè¾“å…¥ï¼Œå¯ä»¥åšKEYè¯†åˆ«ï¼ŒRX1
+    2ã€å¸¦ä¸Šæ‹‰è¾“å…¥GPIO_IPUâ€”â€”IOå†…éƒ¨ä¸Šæ‹‰ç”µé˜»è¾“å…¥
+    3ã€å¸¦ä¸‹æ‹‰è¾“å…¥GPIO_IPDâ€”â€” IOå†…éƒ¨ä¸‹æ‹‰ç”µé˜»è¾“å…¥
+    4ã€æ¨¡æ‹Ÿè¾“å…¥GPIO_AIN â€”â€”åº”ç”¨ADCæ¨¡æ‹Ÿè¾“å…¥ï¼Œæˆ–è€…ä½ŽåŠŸè€—ä¸‹çœç”µ
+    5ã€å¼€æ¼è¾“å‡ºGPIO_OUT_OD â€”â€”IOè¾“å‡º0æŽ¥GNDï¼ŒIOè¾“å‡º1ï¼Œæ‚¬ç©ºï¼Œéœ€è¦å¤–æŽ¥ä¸Šæ‹‰ç”µé˜»ï¼Œæ‰èƒ½å®žçŽ°è¾“å‡ºé«˜ç”µå¹³ã€‚å½“è¾“å‡ºä¸º1æ—¶ï¼ŒIOå£çš„çŠ¶æ€ç”±ä¸Šæ‹‰ç”µé˜»æ‹‰é«˜ç”µå¹³ï¼Œä½†ç”±äºŽæ˜¯å¼€æ¼è¾“å‡ºæ¨¡å¼ï¼Œè¿™æ ·IOå£ä¹Ÿå°±å¯ä»¥ç”±å¤–éƒ¨ç”µè·¯æ”¹å˜ä¸ºä½Žç”µå¹³æˆ–ä¸å˜ã€‚å¯ä»¥è¯»IOè¾“å…¥ç”µå¹³å˜åŒ–ï¼Œå®žçŽ°C51çš„IOåŒå‘åŠŸèƒ½
+    6ã€æŽ¨æŒ½è¾“å‡ºGPIO_OUT_PP â€”â€”IOè¾“å‡º0-æŽ¥GNDï¼Œ IOè¾“å‡º1 -æŽ¥VCCï¼Œè¯»è¾“å…¥å€¼æ˜¯æœªçŸ¥çš„
+    7ã€å¤ç”¨åŠŸèƒ½çš„æŽ¨æŒ½è¾“å‡ºGPIO_AF_PP â€”â€”ç‰‡å†…å¤–è®¾åŠŸèƒ½ï¼ˆI2Cçš„SCL,SDAï¼‰
+    8ã€å¤ç”¨åŠŸèƒ½çš„å¼€æ¼è¾“å‡ºGPIO_AF_ODâ€”â€”ç‰‡å†…å¤–è®¾åŠŸèƒ½ï¼ˆTX1,MOSI,MISO.SCK.SSï¼‰
 
-    ¶ÔÓÚ´®¿Ú£¬¼ÙÈç×î´ó²¨ÌØÂÊÖ»Ðè115.2k£¬ÄÇÃ´ÓÃ2MµÄGPIOµÄÒý½ÅËÙ¶È¾Í¹»ÁË£¬¼ÈÊ¡µçÒ²ÔëÉùÐ¡¡£
-    ¶ÔÓÚI2C½Ó¿Ú£¬¼ÙÈçÊ¹ÓÃ400k²¨ÌØÂÊ£¬ÈôÏë°ÑÓàÁ¿Áô´óÐ©£¬ÄÇÃ´ÓÃ2MµÄGPIOµÄÒý½ÅËÙ¶È»òÐí²»¹»£¬ÕâÊ±¿ÉÒÔÑ¡ÓÃ10MµÄGPIOÒý½ÅËÙ¶È¡£
-    ¶ÔÓÚSPI½Ó¿Ú£¬¼ÙÈçÊ¹ÓÃ18M»ò9M²¨ÌØÂÊ£¬ÓÃ10MµÄGPIOµÄÒý½ÅËÙ¶ÈÏÔÈ»²»¹»ÁË£¬ÐèÒªÑ¡ÓÃ50MµÄGPIOµÄÒý½ÅËÙ¶È¡£
+    å¯¹äºŽä¸²å£ï¼Œå‡å¦‚æœ€å¤§æ³¢ç‰¹çŽ‡åªéœ€115.2kï¼Œé‚£ä¹ˆç”¨2Mçš„GPIOçš„å¼•è„šé€Ÿåº¦å°±å¤Ÿäº†ï¼Œæ—¢çœç”µä¹Ÿå™ªå£°å°ã€‚
+    å¯¹äºŽI2CæŽ¥å£ï¼Œå‡å¦‚ä½¿ç”¨400kæ³¢ç‰¹çŽ‡ï¼Œè‹¥æƒ³æŠŠä½™é‡ç•™å¤§äº›ï¼Œé‚£ä¹ˆç”¨2Mçš„GPIOçš„å¼•è„šé€Ÿåº¦æˆ–è®¸ä¸å¤Ÿï¼Œè¿™æ—¶å¯ä»¥é€‰ç”¨10Mçš„GPIOå¼•è„šé€Ÿåº¦ã€‚
+    å¯¹äºŽSPIæŽ¥å£ï¼Œå‡å¦‚ä½¿ç”¨18Mæˆ–9Mæ³¢ç‰¹çŽ‡ï¼Œç”¨10Mçš„GPIOçš„å¼•è„šé€Ÿåº¦æ˜¾ç„¶ä¸å¤Ÿäº†ï¼Œéœ€è¦é€‰ç”¨50Mçš„GPIOçš„å¼•è„šé€Ÿåº¦ã€‚
 
-    IIC ÍÆ¼ö10MHZ
-    SPI ÍÆ¼ö50MHZ
+    IIC æŽ¨è10MHZ
+    SPI æŽ¨è50MHZ
     */
     return 1;
 }

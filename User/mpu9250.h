@@ -2,7 +2,7 @@
 #define _MPU9250_H_
 #include "i2c.h"
 
-//ºƒ¥Ê∆˜∂®“Â
+//ÂØÑÂ≠òÂô®ÂÆö‰πâ
 #define RA_SELF_TEST_X_GYRO			0X00
 #define RA_SELF_TEST_Y_GYRO			0X01
 #define RA_SELF_TEST_Z_GYRO			0X02
@@ -11,121 +11,121 @@
 #define RA_SELF_TEST_Y_ACCEL		0X0E
 #define RA_SELF_TEST_Z_ACCEL		0X0F
 
-#define RA_XG_OFFSET_H					0X13
-#define RA_XG_OFFSET_L					0X14
-#define RA_YG_OFFSET_H					0X15
-#define RA_YG_OFFSET_L					0X16
-#define RA_ZG_OFFSET_H					0X17
-#define RA_ZG_OFFSET_L					0X18
+#define RA_XG_OFFSET_H				0X13
+#define RA_XG_OFFSET_L				0X14
+#define RA_YG_OFFSET_H				0X15
+#define RA_YG_OFFSET_L				0X16
+#define RA_ZG_OFFSET_H				0X17
+#define RA_ZG_OFFSET_L				0X18
 
-#define RA_SMPLRT_DIV						0X19 //Õ”¬›“«≤…—˘¬  µ‰–Õ÷µŒ™0X07  1000/(1+7)=125HZ
-#define RA_CONFIG								0X1A //µÕÕ®¬À≤®∆˜  µ‰–Õ÷µ0x06 5hz
-#define RA_GYRO_CONFIG					0X1B //Õ”¬›“«≤‚¡ø∑∂Œß 0X18 ’˝∏∫2000∂» (0x00 +-2g;)  ( 0x08 +-4g;)  (0x10 +-8g;)  (0x18 +-16g)
-#define RA_ACCEL_CONFIG_1				0X1C //º”ÀŸº∆◊‘ºÏ°¢≤‚¡ø∑∂Œßº∞∏ﬂÕ®¬À≤®∆µ¬ £¨µ‰–Õ÷µ£∫0x01(≤ª◊‘ºÏ£¨2G£¨5Hz)	
-#define RA_ACCEL_CONFIG_2				0X1D //º”ÀŸ∂»º∆µÕÕ®¬À≤®∆˜ 0x06 5hz
+#define RA_SMPLRT_DIV				0X19 //ÈôÄËû∫‰ª™ÈááÊ†∑Áéá ÂÖ∏ÂûãÂÄº‰∏∫0X07  1000/(1+7)=125HZ
+#define RA_CONFIG					0X1A //‰ΩéÈÄöÊª§Ê≥¢Âô®  ÂÖ∏ÂûãÂÄº0x06 5hz
+#define RA_GYRO_CONFIG				0X1B //ÈôÄËû∫‰ª™ÊµãÈáèËåÉÂõ¥ 0X18 Ê≠£Ë¥ü2000Â∫¶ (0x00 +-2g;)  ( 0x08 +-4g;)  (0x10 +-8g;)  (0x18 +-16g)
+#define RA_ACCEL_CONFIG_1			0X1C //Âä†ÈÄüËÆ°Ëá™Ê£Ä„ÄÅÊµãÈáèËåÉÂõ¥ÂèäÈ´òÈÄöÊª§Ê≥¢È¢ëÁéáÔºåÂÖ∏ÂûãÂÄºÔºö0x01(‰∏çËá™Ê£ÄÔºå2GÔºå5Hz)	
+#define RA_ACCEL_CONFIG_2			0X1D //Âä†ÈÄüÂ∫¶ËÆ°‰ΩéÈÄöÊª§Ê≥¢Âô® 0x06 5hz
 
-#define RA_LP_ACCEL_ODR					0X1E
-#define RA_WOM_THR							0X1F
-#define RA_FIFO_EN							0X23
+#define RA_LP_ACCEL_ODR				0X1E
+#define RA_WOM_THR					0X1F
+#define RA_FIFO_EN					0X23
 
-#define RA_I2C_MST_CTRL       	0x24
-#define RA_I2C_SLV0_ADDR        0x25
-#define RA_I2C_SLV0_REG         0x26
-#define RA_I2C_SLV0_CTRL        0x27
-#define RA_I2C_SLV1_ADDR        0x28
-#define RA_I2C_SLV1_REG         0x29
-#define RA_I2C_SLV1_CTRL        0x2A
-#define RA_I2C_SLV2_ADDR        0x2B
-#define RA_I2C_SLV2_REG         0x2C
-#define RA_I2C_SLV2_CTRL        0x2D
-#define RA_I2C_SLV3_ADDR        0x2E
-#define RA_I2C_SLV3_REG         0x2F
-#define RA_I2C_SLV3_CTRL        0x30
-#define RA_I2C_SLV4_ADDR        0x31
-#define RA_I2C_SLV4_REG         0x32
-#define RA_I2C_SLV4_DO          0x33
-#define RA_I2C_SLV4_CTRL        0x34
-#define RA_I2C_SLV4_DI          0x35
-#define RA_I2C_MST_STATUS       0x36
-#define RA_INT_PIN_CFG          0x37
-#define RA_INT_ENABLE           0x38
-#define RA_INT_STATUS           0x3A
+#define RA_I2C_MST_CTRL       	    0x24
+#define RA_I2C_SLV0_ADDR            0x25
+#define RA_I2C_SLV0_REG             0x26
+#define RA_I2C_SLV0_CTRL            0x27
+#define RA_I2C_SLV1_ADDR            0x28
+#define RA_I2C_SLV1_REG             0x29
+#define RA_I2C_SLV1_CTRL            0x2A
+#define RA_I2C_SLV2_ADDR            0x2B
+#define RA_I2C_SLV2_REG             0x2C
+#define RA_I2C_SLV2_CTRL            0x2D
+#define RA_I2C_SLV3_ADDR            0x2E
+#define RA_I2C_SLV3_REG             0x2F
+#define RA_I2C_SLV3_CTRL            0x30
+#define RA_I2C_SLV4_ADDR            0x31
+#define RA_I2C_SLV4_REG             0x32
+#define RA_I2C_SLV4_DO              0x33
+#define RA_I2C_SLV4_CTRL            0x34
+#define RA_I2C_SLV4_DI              0x35
+#define RA_I2C_MST_STATUS           0x36
+#define RA_INT_PIN_CFG              0x37
+#define RA_INT_ENABLE               0x38
+#define RA_INT_STATUS               0x3A
 
-#define RA_ACCEL_XOUT_H					0X3B  //º”ÀŸ∂»º∆ ‰≥ˆ ˝æ›
-#define RA_ACCEL_XOUT_L					0X3C
-#define RA_ACCEL_YOUT_H					0X3D
-#define RA_ACCEL_YOUT_L					0X3E
-#define RA_ACCEL_ZOUT_H					0X3F
-#define RA_ACCEL_ZOUT_L					0X40
+#define RA_ACCEL_XOUT_H				0X3B  //Âä†ÈÄüÂ∫¶ËÆ°ËæìÂá∫Êï∞ÊçÆ
+#define RA_ACCEL_XOUT_L				0X3C
+#define RA_ACCEL_YOUT_H				0X3D
+#define RA_ACCEL_YOUT_L				0X3E
+#define RA_ACCEL_ZOUT_H				0X3F
+#define RA_ACCEL_ZOUT_L				0X40
 
-#define RA_TEMP_OUT_H						0X41  //Œ¬∂»º∆ ‰≥ˆ ˝æ›
-#define RA_TEMP_OUT_L						0X42
+#define RA_TEMP_OUT_H				0X41  //Ê∏©Â∫¶ËÆ°ËæìÂá∫Êï∞ÊçÆ
+#define RA_TEMP_OUT_L				0X42
 
-#define RA_GYRO_XOUT_H					0X43  //Õ”¬›“« ‰≥ˆ ˝æ›
-#define RA_GYRO_XOUT_L					0X44
-#define RA_GYRO_YOUT_H					0X45
-#define RA_GYRO_YOUT_L					0X46
-#define RA_GYRO_ZOUT_H					0X47
-#define RA_GYRO_ZOUT_L					0X48
+#define RA_GYRO_XOUT_H				0X43  //ÈôÄËû∫‰ª™ËæìÂá∫Êï∞ÊçÆ
+#define RA_GYRO_XOUT_L				0X44
+#define RA_GYRO_YOUT_H				0X45
+#define RA_GYRO_YOUT_L				0X46
+#define RA_GYRO_ZOUT_H				0X47
+#define RA_GYRO_ZOUT_L				0X48
 
-//#define RA_MAG_XOUT_L						0x03
-//#define RA_MAG_XOUT_H						0x04
-//#define RA_MAG_YOUT_L						0x05
-//#define RA_MAG_YOUT_H						0x06
-//#define RA_MAG_ZOUT_L						0x07
-//#define RA_MAG_ZOUT_H						0x08
+//#define RA_MAG_XOUT_L				0x03
+//#define RA_MAG_XOUT_H				0x04
+//#define RA_MAG_YOUT_L				0x05
+//#define RA_MAG_YOUT_H				0x06
+//#define RA_MAG_ZOUT_L				0x07
+//#define RA_MAG_ZOUT_H				0x08
 
-#define RA_USER_CTRL        		0X6A //”√ªß≈‰÷√ µ±Œ™0X10 ± π”√SPIƒ£ Ω
-#define RA_PWR_MGMT_1						0X6B //µÁ‘¥π‹¿Ì1 µ‰–Õ÷µŒ™0x00
-#define RA_PWR_MGMT_2						0X6C //µÁ‘¥π‹¿Ì2 µ‰–Õ÷µŒ™0X00
+#define RA_USER_CTRL        		0X6A //Áî®Êà∑ÈÖçÁΩÆ ÂΩì‰∏∫0X10Êó∂‰ΩøÁî®SPIÊ®°Âºè
+#define RA_PWR_MGMT_1				0X6B //ÁîµÊ∫êÁÆ°ÁêÜ1 ÂÖ∏ÂûãÂÄº‰∏∫0x00
+#define RA_PWR_MGMT_2				0X6C //ÁîµÊ∫êÁÆ°ÁêÜ2 ÂÖ∏ÂûãÂÄº‰∏∫0X00
 
-#define RA_WHO_AM_I							0X75 //∆˜º˛ID MPU9250ƒ¨»œIDŒ™0X71
-#define VAL_DEVICE_ID       	  0X71
+#define RA_WHO_AM_I					0X75 //Âô®‰ª∂ID MPU9250ÈªòËÆ§ID‰∏∫0X71
+#define VAL_DEVICE_ID       	    0X71
 
 #define MPU9250_ADDRESS    			0xD2 //0x69 Left shift //LSB = AD0 = 1 of front of 7 bits // read + 1
 
-#define USE_MAG_PASSMODE   
+//#define USE_MAG_PASSMODE   
 
-#ifdef USE_MAG_PASSMODE
-	#define MAG_ADDRESS      	 				  0x18 //0x0c left shift
-	#define VAL_MAG_DEVICE_ID    		  	0x48
+//#ifdef USE_MAG_PASSMODE
+	#define MAG_ADDRESS      	 	0x18 //0x0c left shift
+	#define VAL_MAG_DEVICE_ID    	0x48
 	// Read-only Reg
-	#define AK8963_WIA                  0x00
-	#define AK8963_INFO                 0x01
-	#define AK8963_ST1                  0x02
-	#define AK8963_HXL                  0x03
-	#define AK8963_HXH                  0x04
-	#define AK8963_HYL                  0x05
-	#define AK8963_HYH                  0x06
-	#define AK8963_HZL                  0x07
-	#define AK8963_HZH                  0x08
-	#define AK8963_ST2                  0x09
+	#define AK8963_WIA              0x00
+	#define AK8963_INFO             0x01
+	#define AK8963_ST1              0x02
+	#define AK8963_HXL              0x03
+	#define AK8963_HXH              0x04
+	#define AK8963_HYL              0x05
+	#define AK8963_HYH              0x06
+	#define AK8963_HZL              0x07
+	#define AK8963_HZH              0x08
+	#define AK8963_ST2              0x09
 	// Write/Read Reg
-	#define AK8963_CNTL1                0x0A
-	#define AK8963_CNTL2                0x0B
-	#define AK8963_ASTC                 0x0C
-	#define AK8963_TS1                  0x0D
-	#define AK8963_TS2                  0x0E
-	#define AK8963_I2CDIS               0x0F
+	#define AK8963_CNTL1            0x0A
+	#define AK8963_CNTL2            0x0B
+	#define AK8963_ASTC             0x0C
+	#define AK8963_TS1              0x0D
+	#define AK8963_TS2              0x0E
+	#define AK8963_I2CDIS           0x0F
 	// Read-only Reg ( ROM )
-	#define AK8963_ASAX                	0x10
-	#define AK8963_ASAY                 0x11
-	#define AK8963_ASAZ                 0x12
+	#define AK8963_ASAX             0x10
+	#define AK8963_ASAY             0x11
+	#define AK8963_ASAZ             0x12
 	// Status
-	#define AK8963_STATUS_DRDY          0x01
-	#define AK8963_STATUS_DOR           0x02
-	#define AK8963_STATUS_HOFL          0x08
-#endif
+	#define AK8963_STATUS_DRDY      0x01
+	#define AK8963_STATUS_DOR       0x02
+	#define AK8963_STATUS_HOFL      0x08
+//#endif
 /*************************************************************************
 |Bit      |   7   |   6   |   5   |   4   |   3   |   2   |   1   |   0   |
 +---------+-------+-------+-------+-------+-------+-------+-------+-------+
 |CONFIG   |       | FIFO_ |  EXT_SYNC_SET[2:0]    |     DLPF_CFG[2:0]     |
-|			    |       | MODE  |                       |                       |
+|		  |       | MODE  |                       |                       |
 +---------+-------+-------+-------+---------------+-------+---------------+
 |GYRO_    |       |       |       |  GYRO_FS_SEL  |       |   FCHOICE_B   |[4:3]Gyro Full Scale Select:00 = +250 dps, 01= +500 dps, 10 = +1000 dps, 11 = +2000 dps
-|CONFIG   |       |       |       |    [1:0]      |       |     [1:0]     |																 131 LSB		   65.5 LSB       32.8 LSB				16.4 LSB       
+|CONFIG   |       |       |       |    [1:0]      |       |     [1:0]     |						       131 LSB		  65.5 LSB      32.8 LSB		16.4 LSB       
 +---------+-------+-------+-------+---------------+-------+-------+-------+
-|ACCEL_   |       |       |       |  ACCEL_FS_SEL |       |       |       |[4:3]Accel Full Scale Select:°¿2g (00), °¿4g (01), °¿8g (10), °¿16g (11)
+|ACCEL_   |       |       |       |  ACCEL_FS_SEL |       |       |       |[4:3]Accel Full Scale Select:¬±2g (00), ¬±4g (01), ¬±8g (10), ¬±16g (11)
 |CONFIG   |       |       |       |    [1:0]      |       |       |       |														 16384 LSB  8192 LSB	 4096 LSB		2048 LSB
 +---------+-------+-------+-------+-------+-------+-------+-------+-------+
 |ACCEL_   |       |       |       |       | ACCEL_FCHOICE |  A_DLPF_CFG   |        
@@ -168,7 +168,7 @@
 |  7  |  3600Hz |  0.17ms |   8kHz |  4000Hz |  0.04ms |
 *******************************************************/
  
- /*¥≈¡¶º∆◊Ó∂‡–Ë“™9ms¿¥ÕÍ≥…◊™ªª*/
+ /*Á£ÅÂäõËÆ°ÊúÄÂ§öÈúÄË¶Å9msÊù•ÂÆåÊàêËΩ¨Êç¢*/
  
  
 //#define GYROSCALE250DPS

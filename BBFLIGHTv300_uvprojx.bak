@@ -415,11 +415,6 @@
               <FilePath>.\User\systeminit.c</FilePath>
             </File>
             <File>
-              <FileName>system_loop.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\system_loop.c</FilePath>
-            </File>
-            <File>
               <FileName>system_config.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\User\system_config.h</FilePath>
@@ -428,6 +423,16 @@
               <FileName>readme.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\readme.h</FilePath>
+            </File>
+            <File>
+              <FileName>system_loop.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\system_loop.c</FilePath>
+            </File>
+            <File>
+              <FileName>imucal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\imucal.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -440,11 +445,6 @@
               <FilePath>.\User\delay.c</FilePath>
             </File>
             <File>
-              <FileName>usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\usart.c</FilePath>
-            </File>
-            <File>
               <FileName>spinrf.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\spinrf.c</FilePath>
@@ -453,11 +453,6 @@
               <FileName>pwm.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\pwm.c</FilePath>
-            </File>
-            <File>
-              <FileName>debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\debug.c</FilePath>
             </File>
             <File>
               <FileName>usb2com.c</FileName>

@@ -19,7 +19,7 @@ unsigned char Get_MPU6050_ID(void)
 	return Single_Read(MPU6050_ADDRESS , MPU6050_RA_WHO_AM_I);
 }
 
-//¶Áacc
+//è¯»acc
 void MPU6050AccRead(int16_t *accData)
 {
     uint8_t BUF[6];
@@ -35,10 +35,10 @@ void MPU6050AccRead(int16_t *accData)
 
 
 }
-//¶Ágyro
+//è¯»gyro
 void MPU6050GyroRead(int16_t *gyroData)
 {
-	uint8_t BUF[6];//»º´æ
+	uint8_t BUF[6];//ç¼“å­˜
 	BUF[0]=Single_Read(MPU6050_ADDRESS,MPU6050_RA_GYRO_XOUT_H); 
 	BUF[1]=Single_Read(MPU6050_ADDRESS,MPU6050_RA_GYRO_XOUT_L);
 	BUF[2]=Single_Read(MPU6050_ADDRESS,MPU6050_RA_GYRO_YOUT_H);

@@ -43,8 +43,8 @@ const MOTO_DEF MOTO_A =
 	.Gpiox = GPIOB,
 	
 	.TIMX = TIM4,
-	.TimPeriod = 64000 - 1 ,        //TIMƵ��=TIM1CLK/(TIM1_Period+1)
-	.TimPrescaler = 0 ,     //TIMʱ��Ƶ�ʵ�Ԥ��Ƶֵ
+	.TimPeriod = 64000 - 1 ,        //TIM频率=TIM1CLK/(TIM1_Period+1)
+	.TimPrescaler = 0 ,     //TIM时钟频率的预分频值
 	.TimPolarity = TIM_OCPolarity_High ,      //TIM_OCPolarity_Low
 	.TimPulse =  32000,
 	
@@ -63,10 +63,10 @@ const static MOTO_DEF MOTO_A =
 	GPIOB,
 	
 	TIM4,
-	64000 -1 ,   //1125hz     //TIMƵ��=TIM1CLK/(TIM1_Period+1)
-	0 ,     //TIMʱ��Ƶ�ʵ�Ԥ��Ƶֵ
+	64000 -1 ,   //1125hz     //TIM频率=TIM1CLK/(TIM1_Period+1)
+	0 ,     //TIM时钟频率的预分频值
 	TIM_OCPolarity_High ,      //TIM_OCPolarity_Low
-	0,//ռ�ձ�
+	0,//占空比
 	
 	TIM_OC4Init,
 };

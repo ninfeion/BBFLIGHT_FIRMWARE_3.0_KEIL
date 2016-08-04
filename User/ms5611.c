@@ -11,16 +11,17 @@ void ms5611Init(void)
 void MS5611_Reset(void)
 {
 	I2C_Start();
-  I2C_SendByte(MS5611_ADDRESS); //Ğ´µØÖ·
+	I2C_SendByte(MS5611_ADDRESS); //å†™åœ°å€
 	I2C_WaitAck();
-  I2C_SendByte(CMD_MS5611_RESET);//·¢ËÍ¸´Î»ÃüÁî
+	I2C_SendByte(CMD_MS5611_RESET);//å‘é€å¤ä½å‘½ä»¤
 	I2C_WaitAck();	
-  I2C_Stop();
+	I2C_Stop();
 }
 
 void MS5611_PROM_READ(uint16_t *PROM_C)
 {
 	uint8_t DATATEMP[2],count;
+	
 	for(count=0;count<=6;count++)
 	{
 		I2C_Start();
@@ -49,30 +50,31 @@ uint32_t MS5611_SendCmd_StartConversionAndGetIt(uint8_t OSR_Cmd_SelectTempOrPres
 {
 	uint8_t Datatemp[3];
 	uint32_t ConversionSequence;
+	
 	I2C_Start();
-  I2C_SendByte(MS5611_ADDRESS); //Ğ´µØÖ·
+	I2C_SendByte(MS5611_ADDRESS); //å†™åœ°å€
 	I2C_WaitAck();
-  I2C_SendByte(OSR_Cmd_SelectTempOrPres);//·¢ËÍ¸´Î»ÃüÁî
+	I2C_SendByte(OSR_Cmd_SelectTempOrPres);//å‘é€å¤ä½å‘½ä»¤
 	I2C_WaitAck();	
-  I2C_Stop();
+	I2C_Stop();
 	
 	delay_us(ConversionTime);
 	
 	I2C_Start();
-	I2C_SendByte(MS5611_ADDRESS); //Ğ´µØÖ·
+	I2C_SendByte(MS5611_ADDRESS); //å†™åœ°å€
 	I2C_WaitAck();
 	I2C_SendByte(0);// start read sequence
 	I2C_WaitAck();	
 	I2C_Stop();
 	
 	I2C_Start();
-	I2C_SendByte(MS5611_ADDRESS +1);  //½øÈë½ÓÊÕÄ£Ê½	
+	I2C_SendByte(MS5611_ADDRESS +1);  //è¿›å…¥æ¥æ”¶æ¨¡å¼	
 	I2C_WaitAck();
-	Datatemp[0] = I2C_ReceiveByte(); //´øACKµÄ¶ÁÊı¾İ  bit 23-16
+	Datatemp[0] = I2C_ReceiveByte(); //å¸¦ACKçš„è¯»æ•°æ®  bit 23-16
 	I2C_Ack();
-	Datatemp[1] = I2C_ReceiveByte(); //´øACKµÄ¶ÁÊı¾İ  bit 8-15
+	Datatemp[1] = I2C_ReceiveByte(); //å¸¦ACKçš„è¯»æ•°æ®  bit 8-15
 	I2C_Ack();
-	Datatemp[2] = I2C_ReceiveByte(); //´øNACKµÄ¶ÁÊı¾İ bit 0-7
+	Datatemp[2] = I2C_ReceiveByte(); //å¸¦NACKçš„è¯»æ•°æ® bit 0-7
 	I2C_NoAck();
 	I2C_Stop();
 	ConversionSequence = (uint32_t)Datatemp[0]<<16 | (uint32_t)Datatemp[1]<<8 | (uint32_t)Datatemp[2];
@@ -82,7 +84,7 @@ uint32_t MS5611_SendCmd_StartConversionAndGetIt(uint8_t OSR_Cmd_SelectTempOrPres
 void MS5611_GetTempture(uint8_t SelectTempOsr, uint16_t *PROM_C, float *TEMPERATURE_DATA)
 {
 	//TEMPERATURE_DATA[0] dT
-	//TEMPERATURE_DATA[1] ³õÊ¼ÎÂ¶È
+	//TEMPERATURE_DATA[1] åˆå§‹æ¸©åº¦
 	
 	uint32_t D2_DATA;
 	//float D2_dT,TEMPERATURE;
@@ -94,13 +96,13 @@ void MS5611_GetTempture(uint8_t SelectTempOsr, uint16_t *PROM_C, float *TEMPERAT
 
 void MS5611_GetPressure(uint8_t SelectPresOsr, uint16_t *PROM_C, float *TEMPERATURE_DATA, float *AfterOffset_TempPresDATA)
 {
-	//AfterOffset_TempPresDATA[0] ĞŞÕıºóµÄÎÂ¶È
-	//AfterOffset_TempPresDATA[1] ĞŞÕıºóµÄÆøÑ¹
+	//AfterOffset_TempPresDATA[0] ä¿®æ­£åçš„æ¸©åº¦
+	//AfterOffset_TempPresDATA[1] ä¿®æ­£åçš„æ°”å‹
 	
 	uint32_t D1_DATA;
 	double SENS,OFF;
 	float T2,OFF2,SENS2,Aux;
-  //float PRESSURE,TEMPERATURE;
+	//float PRESSURE,TEMPERATURE;
 	
 	D1_DATA = MS5611_SendCmd_StartConversionAndGetIt(SelectPresOsr);
 	OFF = ((int64_t)PROM_C[2]*65536) + (( (int64_t)PROM_C[4] * TEMPERATURE_DATA[0] )/128);
@@ -135,11 +137,11 @@ void MS5611_GetPressure(uint8_t SelectPresOsr, uint16_t *PROM_C, float *TEMPERAT
 
 uint8_t MS5611_GetAltitude(float *AfterOffset_TempPresDATA, float *Altitude_DATA)
 {
-	//Altitude_DATA[0] ÉÏµçµÄÆøÑ¹ 0²Î¿¼¸ß¶È
-	//Altitude_DATA[1] Ä¿Ç°µÄ¸ß¶ÈËãÉÏÉÏµçµÄ¸ß¶ÈµÄĞŞÕı
+	//Altitude_DATA[0] ä¸Šç”µçš„æ°”å‹ 0å‚è€ƒé«˜åº¦
+	//Altitude_DATA[1] ç›®å‰çš„é«˜åº¦ç®—ä¸Šä¸Šç”µçš„é«˜åº¦çš„ä¿®æ­£
 	static uint8_t Filtercount;
 	double FilterTempData;
-	if(Altitude_DATA[0] == 0)	// ÊÇ·ñ³õÊ¼»¯¹ı0Ã×ÆøÑ¹Öµ£¿
+	if(Altitude_DATA[0] == 0)	// æ˜¯å¦åˆå§‹åŒ–è¿‡0ç±³æ°”å‹å€¼ï¼Ÿ
 	{ 
 		if(Filtercount < DefaultPresInitFilterTime )
 		{
@@ -155,7 +157,7 @@ uint8_t MS5611_GetAltitude(float *AfterOffset_TempPresDATA, float *Altitude_DATA
 		}
 	}
 	else
-	//¼ÆËãÏà¶ÔÓÚÉÏµçÊ±µÄÎ»ÖÃµÄ¸ß¶ÈÖµ ¡£µ¥Î»Îªm
+	//è®¡ç®—ç›¸å¯¹äºä¸Šç”µæ—¶çš„ä½ç½®çš„é«˜åº¦å€¼ ã€‚å•ä½ä¸ºm
 	{
 		Altitude_DATA[1] = Altitude_DATA[1] + 4433000.0 * (1 - pow((AfterOffset_TempPresDATA[1] / Altitude_DATA[0]), 0.1903))*0.01f;
 		return 1;

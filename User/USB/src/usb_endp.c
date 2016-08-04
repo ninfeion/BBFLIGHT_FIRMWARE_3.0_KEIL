@@ -8,11 +8,11 @@
 
 
 
-/*ÕâÀï½²ÏÂ´ó¸ÅÒâË¼£¬º¯ÊýEP3_OUT_CallbackÊÇÔÚUSB¿ÚÊÕµ½Êý¾Ýºó£¬½«Êý¾Ý´æÈëFIFOÖÐ¡£
-º¯ÊýSOF_Callback¶¨Ê±²éÑ¯ÓÃ»§ÊÇ·ñÓÐÒª·¢ËÍµÄÊý¾Ý£¬Èç¹ûÓÐÔò½øÐÐ·¢ËÍ£¬
-ÔÚ·¢ËÍÍê³Éºó»á´¥·¢·¢ËÍÖÐ¶ÏEP1_IN_Callbackº¯Êý£¬
-Èç¹û·¢ËÍÍê±Ï¾Í²»µ÷ÓÃSetEPTxValid(ENDP1)º¯Êý£¬
-·¢ËÍÍê³Éºó¾Í²»»áÔÙ´¥·¢EP1_IN_Callbackº¯Êý¡£*/ 
+/*è¿™é‡Œè®²ä¸‹å¤§æ¦‚æ„æ€ï¼Œå‡½æ•°EP3_OUT_Callbackæ˜¯åœ¨USBå£æ”¶åˆ°æ•°æ®åŽï¼Œå°†æ•°æ®å­˜å…¥FIFOä¸­ã€‚
+å‡½æ•°SOF_Callbackå®šæ—¶æŸ¥è¯¢ç”¨æˆ·æ˜¯å¦æœ‰è¦å‘é€çš„æ•°æ®ï¼Œå¦‚æžœæœ‰åˆ™è¿›è¡Œå‘é€ï¼Œ
+åœ¨å‘é€å®ŒæˆåŽä¼šè§¦å‘å‘é€ä¸­æ–­EP1_IN_Callbackå‡½æ•°ï¼Œ
+å¦‚æžœå‘é€å®Œæ¯•å°±ä¸è°ƒç”¨SetEPTxValid(ENDP1)å‡½æ•°ï¼Œ
+å‘é€å®ŒæˆåŽå°±ä¸ä¼šå†è§¦å‘EP1_IN_Callbackå‡½æ•°ã€‚*/ 
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

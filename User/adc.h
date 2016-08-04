@@ -4,23 +4,23 @@
 
 typedef struct 
 {
-	uint16_t  BatteryAD;             //µçÑ¹ADÖµ
-	uint16_t  BatteryVal;            //µçÑ¹Êµ¼ÊÖµ
-	uint16_t  BatReal;               //µç³ØµÄÊµ¼ÊµçÑ¹£¬ÓÃÍòÓÃ±í²â
-	uint16_t  ADRef;                 //AD²Î¿¼Ô´µçÑ¹£¬ÕâÀïÊÇµ¥Æ¬»ú¹©µçµçÑ¹£¬Ò»°ãÔÚ3.3V×óÓÒ£¬ÒªÊµ²â
-	uint16_t  ADinput;               //AD²ÉÑùÊäÈëµçÑ¹--->R15ºÍR17ÏàÁ¬µÄº¸ÅÌµçÑ¹
-	uint16_t  Bat_K;                 //¼ÆËãµçÑ¹ÖµÏµÊı£¬ÓÃÓÚµçÑ¹Ğ£×¼
-	uint16_t  BatteryADmin;          //µçÑ¹ÃÅÏŞ
-	char   alarm;									//±¨¾¯Î»
-	char   chargeSta;							//³äµç×´Ì¬
+	uint16_t  BatteryAD;             //ç”µå‹ADå€¼
+	uint16_t  BatteryVal;            //ç”µå‹å®é™…å€¼
+	uint16_t  BatReal;               //ç”µæ± çš„å®é™…ç”µå‹ï¼Œç”¨ä¸‡ç”¨è¡¨æµ‹
+	uint16_t  ADRef;                 //ADå‚è€ƒæºç”µå‹ï¼Œè¿™é‡Œæ˜¯å•ç‰‡æœºä¾›ç”µç”µå‹ï¼Œä¸€èˆ¬åœ¨3.3Vå·¦å³ï¼Œè¦å®æµ‹
+	uint16_t  ADinput;               //ADé‡‡æ ·è¾“å…¥ç”µå‹--->R15å’ŒR17ç›¸è¿çš„ç„Šç›˜ç”µå‹
+	uint16_t  Bat_K;                 //è®¡ç®—ç”µå‹å€¼ç³»æ•°ï¼Œç”¨äºç”µå‹æ ¡å‡†
+	uint16_t  BatteryADmin;          //ç”µå‹é—¨é™
+	char   alarm;									//æŠ¥è­¦ä½
+	char   chargeSta;							//å……ç”µçŠ¶æ€
 }BATTERY_TypeDef;
 
 typedef struct
 {
 	uint16_t CurrentAD;
-	float gain;                   //ÔË·ÅÔöÒæ
-	uint16_t ADRef;                  //²Î¿¼µçÑ¹ mv
-	uint16_t Rom;										//²ÉÑùµç×è´óĞ¡
+	float gain;                   //è¿æ”¾å¢ç›Š
+	uint16_t ADRef;                  //å‚è€ƒç”µå‹ mv
+	uint16_t Rom;										//é‡‡æ ·ç”µé˜»å¤§å°
 	uint16_t CURRENTVal;
 	
 }CURRENT_TypeDef;
