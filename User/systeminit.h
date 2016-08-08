@@ -22,8 +22,14 @@ typedef struct
 typedef struct
 {
 	float accelRaw[3];
-	float gyroRaw[3];
+	struct 
+	{
+		float newData[3];
+		float lastData[3];
+	}gyroRaw;
 	float magRaw[3];
+	float accelOffset[3];
+	float gyroOffset[3];
 	int16_t targetThrust;
 	float targetPitch;
 	float targetRoll;
@@ -32,7 +38,33 @@ typedef struct
 	float actualPitch;
 	float actualRoll;
 	float actualYaw;
-	
+	struct {
+		float pidD;
+		float pidI;
+		float pidP;
+		float pidDout;
+		float pidIout;
+		float pidPout;
+		float pidFinalOut;
+	}pidPitch;
+	struct { 
+		float pidD;
+		float pidI;
+		float pidP;
+		float pidDout;
+		float pidIout;
+		float pidPout;
+		float pidFinalOut;
+	}pidRoll;
+	struct {
+		float pidD;
+		float pidI;
+		float pidP; 
+		float pidDout;
+		float pidIout;
+		float pidPout;
+		float pidFinalOut;
+	}pidYaw;
 }ImuData;
 
 typedef struct 

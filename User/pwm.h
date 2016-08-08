@@ -2,18 +2,14 @@
 #define _PWM_H_
 #include "stm32f10x.h"
 
-  //MOTO_0->PB9
-  //MOTO_2->PB0
-  //MOTO_1->PB8
-  //MOTO_3->PB1
-	
-//enum TimType
-//{
-//	TIM1T,
-//	TIM2T,
-//	TIM3T,
-//	TIM4T
-//};
+/*
+MOTO_0->PB9
+MOTO_2->PB0
+MOTO_1->PB8
+MOTO_3->PB1
+*/
+
+#define Moto_PwmMax 64000
 
 typedef struct
 {
@@ -51,23 +47,18 @@ const MOTO_DEF MOTO_A =
 	.ocInit = TIM_OC4Init,
 };*/
 
-#define Moto_PwmMax 64000
-
 const static MOTO_DEF MOTO_A =
 {
 	RCC_APB2Periph_GPIOB,
 	RCC_APB1Periph_TIM4,
 	GPIO_Pin_9,
-	
 	//GPIO_Speed_2MHz,
 	GPIOB,
-	
 	TIM4,
-	64000 -1 ,   //1125hz     //TIM频率=TIM1CLK/(TIM1_Period+1)
-	0 ,     //TIM时钟频率的预分频值
+	64000 -1 ,   //1125hz      //TIM频率=TIM1CLK/(TIM1_Period+1)
+	0 ,          //TIM时钟频率的预分频值
 	TIM_OCPolarity_High ,      //TIM_OCPolarity_Low
-	0,//占空比
-	
+	0,           //占空比
 	TIM_OC4Init,
 };
 
@@ -78,13 +69,11 @@ const static MOTO_DEF MOTO_B =
 	GPIO_Pin_0,
 	//GPIO_Speed_2MHz,
 	GPIOB,
-	
 	TIM3,
 	64000 -1 ,
 	0 ,
 	TIM_OCPolarity_High ,
 	0 ,
-	
 	TIM_OC3Init,
 };
 
@@ -95,13 +84,11 @@ const static MOTO_DEF MOTO_C =
 	GPIO_Pin_8,
 	//GPIO_Speed_2MHz,
 	GPIOB,
-	
 	TIM4,
 	64000 -1,
 	0 ,
 	TIM_OCPolarity_High ,
 	0 ,
-	
 	TIM_OC3Init,
 };
 
@@ -112,18 +99,16 @@ const static MOTO_DEF MOTO_D =
 	GPIO_Pin_1,
 	//GPIO_Speed_2MHz,
 	GPIOB,
-	
 	TIM3,
 	64000 -1,
 	0 ,
 	TIM_OCPolarity_High ,
 	0 ,
-	
 	TIM_OC4Init,
 };
 
 uint8_t pwmInit(void);
 uint8_t MOTO_Init(const MOTO_DEF *MOTO_MAP);
-void MotorPwmFlash(int32_t MOTO1_PWM,int32_t MOTO2_PWM,int32_t MOTO3_PWM,int32_t MOTO4_PWM);
+void motorPwmFlash(uint16_t MOTO1_PWM, uint16_t MOTO2_PWM, uint16_t MOTO3_PWM, uint16_t MOTO4_PWM);
 
 #endif

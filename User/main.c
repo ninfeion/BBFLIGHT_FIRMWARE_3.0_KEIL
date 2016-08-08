@@ -75,9 +75,30 @@ int main(void)
 		BBSYSTEM.MPU9250ONLINE = 1;
 	}
 	ms5611Init();
+
 	pwmInit();	
 	systemLoopTim1Init();
+	
+	accelAndGyroOffset(&BBImu);
 
+	BBImu.pidPitch.pidP    = 3;
+	BBImu.pidPitch.pidD    = 20;
+	BBImu.pidPitch.pidI    = 0;
+	BBImu.pidPitch.pidIout = 0;
+	
+	BBImu.pidRoll.pidP    = 3;
+	BBImu.pidRoll.pidD    = 20;
+	BBImu.pidRoll.pidI    = 0;
+	BBImu.pidRoll.pidIout = 0;
+	
+	BBImu.pidYaw.pidP    = 3;
+	BBImu.pidYaw.pidD    = 20;
+	BBImu.pidYaw.pidI    = 0;
+	BBImu.pidYaw.pidPout = 0;
+	BBImu.pidYaw.pidIout = 0;
+	
+	BBImu.actualYaw = 0;
+	
 	whileStart = currentTime();
 	while(1)
 	{	
@@ -138,7 +159,6 @@ int main(void)
 		{
 			timeTemp = currentTime();
 			LedD_on;
-			BBMess.battery = adcBatteryConversion();
 			if(BBSYSTEM.MPU9250ONLINE == 1)
 			{
 				READ_MPU9250_ACCEL_RAW(ACCELDATA);
@@ -146,24 +166,20 @@ int main(void)
 				#ifdef USE_MAG_PASSMODE // mpu9250.h
 				READ_MPU9250_Bypass_MAG_RAW(MAGDATA);
 				#endif				
+				
 				for(i=0; i<3; i++)
 				{
-					BBImu.accelRaw[i]=ACCELDATA[i];// /ACCELLSB;
-					BBImu.gyroRaw[i]=GYRODATA[i] /GYROLSB;
+					BBImu.accelRaw[i] = ACCELDATA[i] - BBImu.accelOffset[i];// /ACCELLSB;
+					BBImu.gyroRaw.lastData[i] = BBImu.gyroRaw.newData[i];
+					BBImu.gyroRaw.newData[i]  = (GYRODATA[i] - BBImu.gyroOffset[i]) /GYROLSB;
 					#ifdef USE_MAG_PASSMODE // mpu9250.h
 					BBImu.magRaw[i]=MAGDATA[i]*MAGLSB;
 					#endif
 				}
-				IMUupdate(&BBImu);
-				//MotorPwmFlash((int32_t)(BBImu.targetThrust*20),// - BBImu.targetPitch + BBImu.targetRoll + BBImu.targetYaw),
-				//			  (int32_t)(BBImu.targetThrust*20),// + BBImu.targetPitch - BBImu.targetRoll + BBImu.targetYaw),
-				//	          (int32_t)(BBImu.targetThrust*20),//	+ BBImu.targetPitch + BBImu.targetRoll - BBImu.targetYaw),
-				//            (int32_t)(BBImu.targetThrust*20));// - BBImu.targetPitch - BBImu.targetRoll - BBImu.targetYaw));
-
-				//Motor[2] = (int16_t)(Thr - Pitch - Roll - Yaw ); //MOTO_3
-				//Motor[0] = (int16_t)(Thr + Pitch + Roll - Yaw ); //MOTO_2
-				//Motor[3] = (int16_t)(Thr - Pitch + Roll + Yaw ); //MOTO_0
-				//Motor[1] = (int16_t)(Thr + Pitch - Roll + Yaw ); //MOTO_1
+				imuUpdate(&BBImu);
+				
+				pidControl(&BBImu);
+				motorUpdate(&BBImu, &BBMess);	
 			}
 		
 			#ifdef BROENABLED
@@ -178,6 +194,12 @@ int main(void)
 			BBSYSTEM.idlePrd = currentTime() - BBSYSTEM.imuExecPrd - whileStart;
 			continue;
 		}		
+		if(batteryCheckFlag == 1)
+		{
+			BBMess.battery = adcBatteryConversion();
+			batteryCheckFlag = 0;
+			continue;
+		}
 	}		
 }
 
@@ -191,19 +213,20 @@ void nrfTransmitResult(uint8_t res, uint8_t linkQuality)
 		{
 			lostControlFlag = 1;
 		}
+		BBMess.linkQuality = 0;
 	}
 	else
 	{
 		txFailCount = 0;
+		BBMess.linkQuality = linkQuality;
 	}		
-	BBMess.linkQuality = linkQuality;
 }
 
 
 void nrfReceiveResult(uint8_t res)
 {
-	uint16_t sum;
-	uint8_t i;
+//	uint16_t sum;
+//	uint8_t i;
 
 	if(res == 1)
 	{
@@ -220,6 +243,7 @@ void nrfReceiveResult(uint8_t res)
 			BBMess.pitch = BBImu.actualPitch;
 			BBMess.roll = BBImu.actualRoll;
 			BBMess.yaw = BBImu.actualYaw;
+			
 		}		
 		//else
 		//{
@@ -228,7 +252,7 @@ void nrfReceiveResult(uint8_t res)
 		//		NRF_TXBUFFER[i] = 0;  
 		//	}	
 		//}
-		//should send a affective frame data to active the pc clients transmit
+		//should send a affective frame data to trigge the pc clients transmit
 	}
 	else
 	{
