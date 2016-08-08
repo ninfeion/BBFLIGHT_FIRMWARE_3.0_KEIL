@@ -1,6 +1,13 @@
+BBFlight project began in the winter of last year which is my first project basing in STM32, significantly, i study electronic
+control and printed circuit designing through this.Thank to my brother,he taught me so much about progamming and circuit design ,in addition, he influence my coding ideal deeply.
+In this year, up to now, this summer holiday, i finished the client by python for pc and the software for drone controlling.
+But it also exist many problems of BBFlight, like unstable command communication, low efficiency about drone cpu using,etc.
+
+
+
 /*************************************************
 
-¼¸¸öÖØÒªµÄºê 
+å‡ ä¸ªé‡è¦çš„å® 
 mpu5611.h
 
 #define GYROSCALE250DPS
@@ -18,7 +25,13 @@ mpu5611.h
 
 ====================================================
 
-16Mhz ÏÂUSBÓĞ´óbug
+16Mhz ä¸‹USBæœ‰å¤§bug:
+This error is not because of the 16Mhz crystal.
+And finally,i found that the usb crashing problem is raise by the overflowing of the USB RX FIFO.
+When the slave misses the connection, the software of slave can not clear the fifo immediately(
+it comes to outtime processing) ,at the same time,the client will not stop send command.
+So that the usb moduel crashing happens if the fifo overflow.
+For slove this problem, i added some methods to interrupt the cilent transmitting when lost connection.
 
 ====================================================
 ms5611.h
@@ -26,7 +39,7 @@ ms5611.h
 #define ConversionTime 10000
 #define DefaultPresInitFilterTime 50
 
-¸ß¶È×ª»»ÒªÔËĞĞ¹»50´ÎÂË²¨
+é«˜åº¦è½¬æ¢è¦è¿è¡Œå¤Ÿ50æ¬¡æ»¤æ³¢
 
 ====================================================
 system_config.h
@@ -35,16 +48,17 @@ system_config.h
 
 
 ====================================================
-ÖĞ¶Ï×Ü½á
-NVIC_PriorityGroup_2 ÇÀÕ¼ÓĞÁ½Î» ÏìÓ¦ÓĞÁ½Î» ¼ÓÆğÀ´¿ÉÒÔ±í´ï16¸öÓÅÏÈ¼¶
-                 PreemptionPriority(ÇÀÕ¼)  SubPriority£¨ÏìÓ¦)
-TIM1 SYSTEM_LOOP 0 								1                 sign
-NRFIT			 0								0
-TIM2 DEBUG       1              				1				  sign
+ä¸­æ–­æ€»ç»“
+NVIC_PriorityGroup_2 
+æŠ¢å æœ‰ä¸¤ä½ å“åº”æœ‰ä¸¤ä½ åŠ èµ·æ¥å¯ä»¥è¡¨è¾¾16ä¸ªä¼˜å…ˆçº§
+                 PreemptionPriority(æŠ¢å )  SubPriorityï¼ˆå“åº”)
+TIM1 SYSTEM_LOOP          0 								    1                 sign
+NRFIT			                0								      0
+TIM2 DEBUG                1              				1	        			  sign
 
-USB  WAKEUP      0 								1
-USB  RXIRQ    	 1 								0
-USART            1								0
+USB  WAKEUP               0 								    1
+USB  RXIRQ    	          1 								    0
+USART                     1								      0
 ====================================================
 
   M1                  M2
