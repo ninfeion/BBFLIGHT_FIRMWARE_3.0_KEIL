@@ -35,9 +35,21 @@ typedef struct
 	float targetRoll;
 	float targetYaw;
 	int16_t actualThrust;
-	float actualPitch;
-	float actualRoll;
-	float actualYaw;
+	struct
+	{
+		float newData;
+		float lastData;
+	}actualPitch;
+	struct
+	{
+		float newData;
+		float lastData;
+	}actualRoll;
+	struct
+	{
+		float newData;
+		float lastData;
+	}actualYaw;
 	struct {
 		float pidD;
 		float pidI;
@@ -67,7 +79,7 @@ typedef struct
 	}pidYaw;
 }ImuData;
 
-typedef struct 
+__packed typedef struct 
 {
 	uint8_t head[2];
 	int16_t thrust;
@@ -89,7 +101,7 @@ typedef struct
 	uint8_t tail[2];
 }RespondMess;
 
-typedef struct
+__packed typedef struct
 {
 	uint8_t head[2];
 	uint8_t devAdd[5];
@@ -100,11 +112,12 @@ typedef struct
 	float yaw;
 	uint8_t estop;
 	uint8_t altHold;
-	uint8_t pitchNeg;
-	uint8_t pitchPos;
-	uint8_t rollNeg;
-	uint8_t rollPos;
-	uint8_t resevered[2];
+	int8_t pitchNeg;
+	int8_t pitchPos;
+	int8_t rollNeg;
+	int8_t rollPos;
+	uint8_t pidType;
+	int8_t pidValue;
 	uint8_t tail[2];
 }AcceptMess;
 	

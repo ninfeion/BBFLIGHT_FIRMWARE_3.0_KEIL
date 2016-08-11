@@ -32,3 +32,10 @@
 .\output\main.o: User\ms5611.h
 .\output\main.o: User\system_loop.h
 .\output\main.o: User\imucal.h
+.\output\main.o: User\filter.h
+.\output\main.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\math.h
+.\output\main.o: User\usb2com.h
+.\output\main.o: .\User\USB\inc\hw_config.h
+.\output\main.o: .\User\USB\inc\platform_config.h
+.\output\main.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\stdarg.h
+.\output\main.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\stdio.h

@@ -3,8 +3,8 @@
 #include "delay.h"
 #include "system_config.h"
 
-uint8_t radioFlag, attitudeUpdateFlag, rxTimeOutFlag, batteryCheckFlag;
-volatile uint16_t radioPeriodCount, attitudeUpdatePeriodCount, rxTimeOutCount, batteryCheckCount;
+uint8_t radioFlag, attitudeUpdateFlag, rxTimeOutFlag, batteryCheckFlag, motorUpdateFlag;
+volatile uint16_t radioPeriodCount, attitudeUpdatePeriodCount, rxTimeOutCount, batteryCheckCount, motorUpdateCount;
 			
 void TIM1_UP_IRQHandler(void)
 {
@@ -27,6 +27,11 @@ void TIM1_UP_IRQHandler(void)
 	{
 		batteryCheckFlag = 1;
 		batteryCheckCount = 0;
+	}
+	if(motorUpdateCount ++ == 20)
+	{
+		motorUpdateFlag = 1;
+		motorUpdateCount = 0;
 	}
 	TIM_ClearITPendingBit(TIM1, TIM_FLAG_Update); 
 }

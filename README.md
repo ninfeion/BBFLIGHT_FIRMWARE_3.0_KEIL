@@ -1,8 +1,7 @@
 /*************************************************
-
-几个重要的宏 
+几个重要的宏
+ 
 mpu5611.h
-
 #define GYROSCALE250DPS
 #define GYROSCALE500DPS
 #define GYROSCALE1000DPS
@@ -15,6 +14,13 @@ mpu5611.h
 
 #define MAGSCALE14BITS
 #define MAGSCALE16BITS
+
+imucal.h
+#define SAMPLINGFREQ 200
+
+system_config.h
+#define USB_DEBUG
+#define USE_LPF_FILTER
 
 ====================================================
 

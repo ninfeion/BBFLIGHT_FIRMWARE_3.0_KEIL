@@ -10,6 +10,8 @@
 #include "ms5611.h"
 #include "system_loop.h"
 #include "imucal.h"
+#include "filter.h"
+#include "usb2com.h"
 
 #define MAGREADDELAY  7
 #define PRESREADDELAY 10
@@ -57,7 +59,7 @@ int main(void)
 {
 	uint32_t i;
 	uint32_t whileStart, timeTemp;
-
+	
     sysclockInit();
 	cycleCounterInit();
     systickInit();
@@ -79,25 +81,38 @@ int main(void)
 	pwmInit();	
 	systemLoopTim1Init();
 	
+	#ifdef USB_DEBUG
+	usbInit();
+	#endif
+	
 	accelAndGyroOffset(&BBImu);
+	
+	#ifdef USE_LPF_FILTER
+	LPF2pSetCutoffFreq_1(SAMPLINGFREQ, LPFCUTOFFFREQ);	
+	LPF2pSetCutoffFreq_2(SAMPLINGFREQ, LPFCUTOFFFREQ);
+	LPF2pSetCutoffFreq_3(SAMPLINGFREQ, LPFCUTOFFFREQ);
+	LPF2pSetCutoffFreq_4(SAMPLINGFREQ, LPFCUTOFFFREQ);
+	LPF2pSetCutoffFreq_5(SAMPLINGFREQ, LPFCUTOFFFREQ);
+	LPF2pSetCutoffFreq_6(SAMPLINGFREQ, LPFCUTOFFFREQ);
+	#endif
 
-	BBImu.pidPitch.pidP    = 3;
-	BBImu.pidPitch.pidD    = 20;
-	BBImu.pidPitch.pidI    = 0;
-	BBImu.pidPitch.pidIout = 0;
+	BBImu.pidPitch.pidP    = 3.0; // 3
+	BBImu.pidPitch.pidD    = 14.0; // 14
+	BBImu.pidPitch.pidI    = 0.0;
+	BBImu.pidPitch.pidIout = 0.0;
 	
-	BBImu.pidRoll.pidP    = 3;
-	BBImu.pidRoll.pidD    = 20;
-	BBImu.pidRoll.pidI    = 0;
-	BBImu.pidRoll.pidIout = 0;
+	BBImu.pidRoll.pidP    = 1.5; // 3
+	BBImu.pidRoll.pidD    = 11.0; // 11
+	BBImu.pidRoll.pidI    = 0.0;
+	BBImu.pidRoll.pidIout = 0.0;
 	
-	BBImu.pidYaw.pidP    = 3;
-	BBImu.pidYaw.pidD    = 20;
-	BBImu.pidYaw.pidI    = 0;
-	BBImu.pidYaw.pidPout = 0;
-	BBImu.pidYaw.pidIout = 0;
+	BBImu.pidYaw.pidP    = 0.0;
+	BBImu.pidYaw.pidD    = 0.0;
+	BBImu.pidYaw.pidI    = 0.0;
+	BBImu.pidYaw.pidPout = 0.0;
+	BBImu.pidYaw.pidIout = 0.0;
 	
-	BBImu.actualYaw = 0;
+	BBImu.actualYaw.newData = 0;
 	
 	whileStart = currentTime();
 	while(1)
@@ -148,7 +163,7 @@ int main(void)
 								  nrfReceiveResult(0);
 							  }							
 			}
-			//radioPeriodCount = 0;
+
 			radioFlag = 0;
 			BBSYSTEM.nrfExecPrd = currentTime() - timeTemp;
 			BBSYSTEM.idlePrd = currentTime() - BBSYSTEM.nrfExecPrd - whileStart;
@@ -163,23 +178,32 @@ int main(void)
 			{
 				READ_MPU9250_ACCEL_RAW(ACCELDATA);
 				READ_MPU9250_GYRO_RAW(GYRODATA);
-				#ifdef USE_MAG_PASSMODE // mpu9250.h
+				#ifdef USE_MAG_PASSMODE                                                                  // mpu9250.h
 				READ_MPU9250_Bypass_MAG_RAW(MAGDATA);
 				#endif				
 				
 				for(i=0; i<3; i++)
 				{
-					BBImu.accelRaw[i] = ACCELDATA[i] - BBImu.accelOffset[i];// /ACCELLSB;
+					BBImu.accelRaw[i]         = ACCELDATA[i]; // - BBImu.accelOffset[i];   // /ACCELLSB; // Binary
 					BBImu.gyroRaw.lastData[i] = BBImu.gyroRaw.newData[i];
-					BBImu.gyroRaw.newData[i]  = (GYRODATA[i] - BBImu.gyroOffset[i]) /GYROLSB;
-					#ifdef USE_MAG_PASSMODE // mpu9250.h
-					BBImu.magRaw[i]=MAGDATA[i]*MAGLSB;
+					BBImu.gyroRaw.newData[i]  = (GYRODATA[i] - BBImu.gyroOffset[i]) /GYROLSB;            // Degree
+					#ifdef USE_MAG_PASSMODE                                                              // mpu9250.h
+					BBImu.magRaw[i]           = MAGDATA[i]*MAGLSB;
 					#endif
 				}
-				imuUpdate(&BBImu);
 				
+				#ifdef USE_LPF_FILTER
+				BBImu.accelRaw[0] = LPF2pApply_1(BBImu.accelRaw[0]);
+				BBImu.accelRaw[1] = LPF2pApply_2(BBImu.accelRaw[1]);
+				BBImu.accelRaw[2] = LPF2pApply_3(BBImu.accelRaw[2]);
+				
+				BBImu.gyroRaw.newData[0] = LPF2pApply_4(BBImu.gyroRaw.newData[0]);
+				BBImu.gyroRaw.newData[1] = LPF2pApply_5(BBImu.gyroRaw.newData[1]);
+				BBImu.gyroRaw.newData[2] = LPF2pApply_6(BBImu.gyroRaw.newData[2]);
+				#endif				
+				
+				imuUpdate(&BBImu);
 				pidControl(&BBImu);
-				motorUpdate(&BBImu, &BBMess);	
 			}
 		
 			#ifdef BROENABLED
@@ -188,15 +212,23 @@ int main(void)
 			MS5611_GetPressure(CMD_MS5611_D1_OSR_4096, MS5611_PROM, MS5611_TEMP_NoOffset, MS5611_TaPAfterOffset);
 			PRESSUREDATA = MS5611_TaPAfterOffset[1] * 0.01f;
 			#endif
-			//attitudeUpdatePeriodCount = 0;
+
 			attitudeUpdateFlag = 0;
 			BBSYSTEM.imuExecPrd = currentTime() - timeTemp;
 			BBSYSTEM.idlePrd = currentTime() - BBSYSTEM.imuExecPrd - whileStart;
 			continue;
 		}		
+		if(motorUpdateFlag == 1)
+		{
+			motorUpdate(&BBImu, &BBMess);	
+			
+			motorUpdateFlag = 0;
+			continue;
+		}
 		if(batteryCheckFlag == 1)
 		{
 			BBMess.battery = adcBatteryConversion();
+			
 			batteryCheckFlag = 0;
 			continue;
 		}
@@ -225,9 +257,6 @@ void nrfTransmitResult(uint8_t res, uint8_t linkQuality)
 
 void nrfReceiveResult(uint8_t res)
 {
-//	uint16_t sum;
-//	uint8_t i;
-
 	if(res == 1)
 	{
 		rxFailCount = 0;
@@ -238,12 +267,34 @@ void nrfReceiveResult(uint8_t res)
 			BBImu.targetPitch = BBCom.pitch;
 			BBImu.targetRoll = BBCom.roll;
 			BBImu.targetYaw = BBCom.yaw;
-
-			memcpy(NRF_TXBUFFER, &BBMess, TX_PLOAD_WIDTH);
-			BBMess.pitch = BBImu.actualPitch;
-			BBMess.roll = BBImu.actualRoll;
-			BBMess.yaw = BBImu.actualYaw;
+			switch(BBCom.pidType)
+			{
+				case 1: BBImu.pidPitch.pidP = (float)BBCom.pidValue;
+						break;
+				case 2: BBImu.pidPitch.pidI = (float)BBCom.pidValue;
+						break;
+				case 3: BBImu.pidPitch.pidD = (float)BBCom.pidValue;
+						break;
+				case 4: BBImu.pidRoll.pidP = (float)BBCom.pidValue;
+						break;
+				case 5: BBImu.pidRoll.pidI = (float)BBCom.pidValue;
+						break;
+				case 6: BBImu.pidRoll.pidD = (float)BBCom.pidValue;
+						break;
+				case 7: BBImu.pidYaw.pidP = (float)BBCom.pidValue;
+						break;
+				case 8: BBImu.pidYaw.pidI = (float)BBCom.pidValue;
+						break;
+				case 9: BBImu.pidYaw.pidD = (float)BBCom.pidValue;
+						break;
+			}
 			
+			// BBMess.thrust = BBImu.actualThrust;
+			BBMess.pitch = BBImu.actualPitch.newData;
+			BBMess.roll = BBImu.actualRoll.newData;
+			BBMess.yaw = BBImu.actualYaw.newData;
+			memcpy(NRF_TXBUFFER, &BBMess, TX_PLOAD_WIDTH);
+
 		}		
 		//else
 		//{

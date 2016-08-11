@@ -22,3 +22,8 @@
 .\output\imucal.o: User\system_config.h
 .\output\imucal.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\math.h
 .\output\imucal.o: User\pwm.h
+.\output\imucal.o: User\mpu9250.h
+.\output\imucal.o: User\i2c.h
+.\output\imucal.o: .\User\USB\STM32_USB-FS-Device_Driver\inc\usb_type.h
+.\output\imucal.o: .\User\USB\inc\usb_conf.h
+.\output\imucal.o: User\delay.h

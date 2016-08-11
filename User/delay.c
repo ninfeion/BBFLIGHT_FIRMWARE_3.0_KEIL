@@ -18,7 +18,7 @@ void delay_ms(__IO uint32_t msnTime)
 static volatile uint32_t usTicks = 0;
 // cycles per microsecond
 volatile uint32_t sysTickUptime = 0;
-//unit is us,so it will rollover after 71mins. but maybe we won't care.
+// unit is us,so it will rollover after 71mins. but maybe we won't care.
 
 void cycleCounterInit(void)
 {

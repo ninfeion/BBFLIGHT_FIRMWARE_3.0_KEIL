@@ -11,6 +11,7 @@
 ".\output\mpu9250.o"
 ".\output\ms5611.o"
 ".\output\i2c.o"
+".\output\filter.o"
 ".\output\hw_config.o"
 ".\output\usb_desc.o"
 ".\output\usb_endp.o"

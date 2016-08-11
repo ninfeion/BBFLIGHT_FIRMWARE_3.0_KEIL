@@ -13,7 +13,8 @@
 #define LedD_on    GPIO_SetBits(GPIOA, GPIO_Pin_5)
 #define LedD_off   GPIO_ResetBits(GPIOA, GPIO_Pin_5)
 
-//#define _USBDEBUG_
+//#define USB_DEBUG
+#define USE_LPF_FILTER
 
 #endif
 

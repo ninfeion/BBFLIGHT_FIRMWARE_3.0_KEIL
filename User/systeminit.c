@@ -1,14 +1,15 @@
 #include "systeminit.h"
 
-AcceptMess BBCom = {0xaa,0xaa,
-					0x00,0x00,0x00,0x00,0x00,
-					0,
-					0,0,0,0,
-					0,
-					0,
-					0,0,0,0,
-					0,0,
-					0xff,0xff};
+AcceptMess BBCom;
+//AcceptMess BBCom = {0xaa,0xaa,
+	//				0x00,0x00,0x00,0x00,0x00,
+		//			0,
+		//			0,0,0,0,
+		//			0,
+		//			0,
+		//			0,0,0,0,
+		//			0,0,
+		//			0xff,0xff};
 RespondMess BBMess = {0xaa, 0xaa,
 					  0,0,0,0,
 					  0,0,0,0,
