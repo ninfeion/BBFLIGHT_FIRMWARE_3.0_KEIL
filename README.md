@@ -7,7 +7,7 @@
 
 
 
-/*************************************************
+*************************************************
 
 几个重要的宏 
 ------------------------
@@ -50,7 +50,7 @@ system_config.h
 \#define _USBDEBUG_<br>
 
 
-\====================================================
+====================================================
 中断总结
 ----------------------------------------------------
 NVIC_PriorityGroup_2
@@ -64,7 +64,8 @@ NVIC_PriorityGroup_2
     USB  WAKEUP               0                     1
     USB  RXIRQ    	          1                     0
     USART                     1	                    0
-\====================================================
+
+====================================================
 
       M1                  M2
       T3C4                T4C4
@@ -79,4 +80,17 @@ NVIC_PriorityGroup_2
       T3C3                T4C3
       MOTO_2              MOTO_3
 
-\***************************************************
+====================================================
+
+2016/8/12
+----------------------------------------------------
+        1. Be different to the normal quadcopter, the pwm controll value is linear of the 
+           rotational speed of motor instead of the moment of force of the motor. The elevating
+           force is proportional to the moment of force but to the squre of rotational speed.
+        2. If the imu attitude calculation frequency higher than the motor controller frequency,
+           the derivative term of PID controller should use the GYRO data, and inversely use the
+           new Euler angles subtract the last one.
+
+*****************************************************
+
+
