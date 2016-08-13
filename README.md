@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*************************************************
 º∏∏ˆ÷ÿ“™µƒ∫Í
  
@@ -6,15 +7,24 @@ mpu5611.h
 #define GYROSCALE500DPS
 #define GYROSCALE1000DPS
 #define GYROSCALE2000DPS
+=======
+    BBFlight project began in the winter of last year which is my first project basing in STM32, 
+    significantly,i study electronic control and printed circuit designing through this.Thank to my 
+    brother,he taught me so much about progamming and circuit design ,in addition, he influenced my 
+    coding ideal deeply, inspired me a lot. In this year, up to now, this summer holiday, i finished 
+    the client by python for pc and the software for drone controlling.But it also exist many problems 
+    of BBFlight, like unstable command communication, low efficiency about drone cpu using,etc.
 
-#define ACCELSCALE2G
-#define ACCELSCALE4G
-#define ACCELSCALE8G
-#define ACCELSCALE16G
 
-#define MAGSCALE14BITS
-#define MAGSCALE16BITS
+>>>>>>> origin/master
 
+*************************************************
+
+Âá†‰∏™ÈáçË¶ÅÁöÑÂÆè 
+------------------------
+ms5611.h
+
+<<<<<<< HEAD
 imucal.h
 #define SAMPLINGFREQ 200
 
@@ -23,47 +33,86 @@ system_config.h
 #define USE_LPF_FILTER
 
 ====================================================
+=======
+\#define GYROSCALE250DPS<br>
+\#define GYROSCALE500DPS<br>
+\#define GYROSCALE1000DPS<br>
+\#define GYROSCALE2000DPS<br>
 
-16Mhz œ¬USB”–¥Ûbug
+\#define ACCELSCALE2G<br>
+\#define ACCELSCALE4G<br>
+\#define ACCELSCALE8G<br>
+\#define ACCELSCALE16G<br>
 
-====================================================
+\#define MAGSCALE14BITS<br>
+\#define MAGSCALE16BITS<br>
+
+
+16Mhz ‰∏ãUSBÊúâÂ§ßbug:
+-----------------------
+###This error is not because of the 16Mhz crystal.
+    And finally,i found that the usb crashing problem is raise by the overflowing of the USB RX FIFO.
+    When the slave misses the connection, the software of slave can not clear the fifo immediately(
+    it comes to outtime processing) ,at the same time,the client will not stop send command.
+    So that the usb moduel crashing happens if the fifo overflow.
+    For slove this problem, i added some methods to interrupt the cilent transmitting when lost connection.
+>>>>>>> origin/master
+
+
 ms5611.h
+----------------------
+\#define ConversionTime 10000<br>
+\#define DefaultPresInitFilterTime 50<br>
 
-#define ConversionTime 10000
-#define DefaultPresInitFilterTime 50
+`È´òÂ∫¶ËΩ¨Êç¢Ë¶ÅËøêË°åÂ§ü50Ê¨°Êª§Ê≥¢`
 
-∏ﬂ∂»◊™ªª“™‘À––πª50¥Œ¬À≤®
 
-====================================================
 system_config.h
-
-#define _USBDEBUG_
+---------------------
+\#define _USBDEBUG_<br>
 
 
 ====================================================
-÷–∂œ◊‹Ω·
-NVIC_PriorityGroup_2 «¿’º”–¡ΩŒª œÏ”¶”–¡ΩŒª º”∆¿¥ø…“‘±Ì¥Ô16∏ˆ”≈œ»º∂
-                 PreemptionPriority(«¿’º)  SubPriority£®œÏ”¶)
-TIM1 SYSTEM_LOOP 0 								1                 sign
-NRFIT			 0								0
-TIM2 DEBUG       1              				1				  sign
+‰∏≠Êñ≠ÊÄªÁªì
+----------------------------------------------------
+NVIC_PriorityGroup_2
+Êä¢Âç†Êúâ‰∏§‰Ωç ÂìçÂ∫îÊúâ‰∏§‰Ωç Âä†Ëµ∑Êù•ÂèØ‰ª•Ë°®Ëææ16‰∏™‰ºòÂÖàÁ∫ß
 
-USB  WAKEUP      0 								1
-USB  RXIRQ    	 1 								0
-USART            1								0
+                    PreemptionPriority(Êä¢Âç†)  SubPriorityÔºàÂìçÂ∫î)
+    TIM1 SYSTEM_LOOP          0                     1                 sign
+    NRFIT                     0	                    0
+    TIM2 DEBUG                1                     1                 sign
+
+    USB  WAKEUP               0                     1
+    USB  RXIRQ    	          1                     0
+    USART                     1	                    0
+
 ====================================================
 
-  M1                  M2
-  T3C4                T4C4
-  MOTO_1              MOTO_0
+      M1                  M2
+      T3C4                T4C4
+      MOTO_1              MOTO_0
 
-               Y
-               |-X
+                  Y
+                  |-X
 
 
 
-  M3                  M4
-  T3C3                T4C3
-  MOTO_2              MOTO_3
+      M3                  M4
+      T3C3                T4C3
+      MOTO_2              MOTO_3
 
-**************************************************/
+====================================================
+
+2016/8/12
+----------------------------------------------------
+        1. Be different to the normal quadcopter, the pwm controll value is linear of the 
+           rotational speed of motor instead of the moment of force of the motor. The elevating
+           force is proportional to the moment of force but to the squre of rotational speed.
+        2. If the imu attitude calculation frequency higher than the motor controller frequency,
+           the derivative term of PID controller should use the GYRO data, and inversely use the
+           new Euler angles subtract the last one.
+
+*****************************************************
+
+
