@@ -1,13 +1,4 @@
-<<<<<<< HEAD
-/*************************************************
-几个重要的宏
- 
-mpu5611.h
-#define GYROSCALE250DPS
-#define GYROSCALE500DPS
-#define GYROSCALE1000DPS
-#define GYROSCALE2000DPS
-=======
+
     BBFlight project began in the winter of last year which is my first project basing in STM32, 
     significantly,i study electronic control and printed circuit designing through this.Thank to my 
     brother,he taught me so much about progamming and circuit design ,in addition, he influenced my 
@@ -15,10 +6,7 @@ mpu5611.h
     the client by python for pc and the software for drone controlling.But it also exist many problems 
     of BBFlight, like unstable command communication, low efficiency about drone cpu using,etc.
 
-
->>>>>>> origin/master
-
-*************************************************
+************************
 
 几个重要的宏 
 ------------------------
@@ -32,8 +20,7 @@ system_config.h
 #define USB_DEBUG
 #define USE_LPF_FILTER
 
-====================================================
-=======
+========================
 \#define GYROSCALE250DPS<br>
 \#define GYROSCALE500DPS<br>
 \#define GYROSCALE1000DPS<br>
@@ -72,9 +59,9 @@ system_config.h
 \#define _USBDEBUG_<br>
 
 
-====================================================
+=====================
 中断总结
-----------------------------------------------------
+---------------------
 NVIC_PriorityGroup_2
 抢占有两位 响应有两位 加起来可以表达16个优先级
 
@@ -87,7 +74,7 @@ NVIC_PriorityGroup_2
     USB  RXIRQ    	          1                     0
     USART                     1	                    0
 
-====================================================
+=====================
 
       M1                  M2
       T3C4                T4C4
@@ -102,10 +89,10 @@ NVIC_PriorityGroup_2
       T3C3                T4C3
       MOTO_2              MOTO_3
 
-====================================================
+=====================
 
 2016/8/12
-----------------------------------------------------
+---------------------
         1. Be different to the normal quadcopter, the pwm controll value is linear of the 
            rotational speed of motor instead of the moment of force of the motor. The elevating
            force is proportional to the moment of force but to the squre of rotational speed.
@@ -113,6 +100,6 @@ NVIC_PriorityGroup_2
            the derivative term of PID controller should use the GYRO data, and inversely use the
            new Euler angles subtract the last one.
 
-*****************************************************
+*********************
 
 
