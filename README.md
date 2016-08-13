@@ -10,17 +10,23 @@
 
 几个重要的宏 
 ------------------------
-ms5611.h
 
-<<<<<<< HEAD
-imucal.h
-#define SAMPLINGFREQ 200
+ms5611.h
+----------------------
+\#define ConversionTime 10000<br>
+\#define DefaultPresInitFilterTime 50<br>
+
+`高度转换要运行够50次滤波`
 
 system_config.h
-#define USB_DEBUG
-#define USE_LPF_FILTER
+---------------------
+\#define USB_DEBUG<br>
+\#define USE_LPF_FILTER<br>
+\#define SAMPLINGFREQ 200<br>
+\#define LPFCUTOFFFREQ 50.0f<br>
 
-========================
+mpu9250.h
+-----------------------
 \#define GYROSCALE250DPS<br>
 \#define GYROSCALE500DPS<br>
 \#define GYROSCALE1000DPS<br>
@@ -34,6 +40,7 @@ system_config.h
 \#define MAGSCALE14BITS<br>
 \#define MAGSCALE16BITS<br>
 
+========================
 
 16Mhz 下USB有大bug:
 -----------------------
@@ -43,21 +50,6 @@ system_config.h
     it comes to outtime processing) ,at the same time,the client will not stop send command.
     So that the usb moduel crashing happens if the fifo overflow.
     For slove this problem, i added some methods to interrupt the cilent transmitting when lost connection.
->>>>>>> origin/master
-
-
-ms5611.h
-----------------------
-\#define ConversionTime 10000<br>
-\#define DefaultPresInitFilterTime 50<br>
-
-`高度转换要运行够50次滤波`
-
-
-system_config.h
----------------------
-\#define _USBDEBUG_<br>
-
 
 =====================
 中断总结
