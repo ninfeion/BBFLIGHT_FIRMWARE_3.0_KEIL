@@ -139,9 +139,34 @@ void READ_MPU9250_Bypass_MAG_RAW(int16_t *MAGDATA)
 	MAGDATA[2] = (int16_t)((BUF[5] << 8) | BUF[4]);
 }
 
-void MPU9250_OFFSET(void)
+
+void accelAndGyroOffset(ImuData *tarData)
 {
+	uint8_t i,ii;
+	int16_t accelRaw[3], gyroRaw[3];
+	int32_t accelSum[3] = {0, 0, 0};
+	int32_t gyroSum[3]  = {0, 0, 0};
+	
+	for(i=0; i<30; i++)
+	{
+		READ_MPU9250_ACCEL_RAW(accelRaw);
+		READ_MPU9250_GYRO_RAW(gyroRaw);
+		
+		for(ii=0; ii<3; ii++)
+		{
+			accelSum[ii] += accelRaw[ii];
+			gyroSum[ii]  += gyroRaw[ii];
+		}
+	}
+	
+	for(i=0; i<3; i++)
+	{
+		tarData->accelOffset[i] = (int16_t)(accelSum[i]/30);
+		tarData->gyroOffset[i]  = (int16_t)(gyroSum[i]/30);
+	}
+	tarData->accelOffset[2] = tarData->accelOffset[2] - (int16_t)ACCELLSB; // Z axis calibration
 }
+		
 
 /*
 mag修正yaw

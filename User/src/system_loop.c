@@ -28,7 +28,7 @@ void TIM1_UP_IRQHandler(void)
 		batteryCheckFlag = 1;
 		batteryCheckCount = 0;
 	}
-	if(motorUpdateCount ++ == 20)
+	if(motorUpdateCount ++ == 5)
 	{
 		motorUpdateFlag = 1;
 		motorUpdateCount = 0;

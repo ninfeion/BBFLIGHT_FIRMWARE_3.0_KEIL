@@ -1,5 +1,5 @@
-.\output\usb2com.o: User\usb2com.c
-.\output\usb2com.o: User\usb2com.h
+.\output\usb2com.o: User\src\usb2com.c
+.\output\usb2com.o: .\User\inc\usb2com.h
 .\output\usb2com.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\Include\stm32f10x.h
 .\output\usb2com.o: C:\Extra Software\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include\core_cm3.h
 .\output\usb2com.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\stdint.h

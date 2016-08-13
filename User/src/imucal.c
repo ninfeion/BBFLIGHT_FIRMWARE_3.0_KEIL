@@ -1,220 +1,28 @@
 #include "imucal.h"
 #include "math.h"
 
-#include "pwm.h"
 #include "mpu9250.h"
 #include "delay.h"
+#include "system_config.h"
 
+#define RADTODEG      57.295779f
+#define EPSINON       0.000001f
+
+//#define Kp            1.6f                  // 比例增益支配率收敛到加速度计/磁强计 2.0
+//#define Ki            0.001f                // 积分增益支配率的陀螺仪偏见的衔接 0.005f
 
 //#define halfT   0.5 * 0.005                    // 采样周期的一半
 //#define Gyro_G 	0.0610351f	
 //#define Gyro_Gr 0.0010653f	
 
 
-float invSqrt(float number) 
-{
-    volatile long i;
-    volatile float x, y;
-    volatile const float f = 1.5F;
-
-    x = number * 0.5F;
-    y = number;
-    i = * (( long * ) &y);
-    i = 0x5f375a86 - ( i >> 1 );
-    y = * (( float * ) &i);
-    y = y * ( f - ( x * y * y ) );
-    return y;
-}
-
-
-static float q0 = 1, q1 = 0, q2 = 0, q3 = 0;  
-static float exInt = 0, eyInt = 0, ezInt = 0;   // 按比例缩小积分误差
-static double samplingTime = 0;
-static uint32_t timeForYawCalculate = 0;
-
-
-void imuUpdate(ImuData *tarData)
-{
-	float ax = tarData->accelRaw[0];
-    float ay = tarData->accelRaw[1];
-	float az = tarData->accelRaw[2];
-	float gx = tarData->gyroRaw.newData[0];
-	float gy = tarData->gyroRaw.newData[1];
-	float gz = tarData->gyroRaw.newData[2];
-	
-	float recipNorm;
-	float vx, vy, vz;
-	float ex, ey, ez;
-	
-    float q0q0 = q0*q0;
-    float q0q1 = q0*q1;
-    float q0q2 = q0*q2;
-    float q1q1 = q1*q1;
-    float q1q3 = q1*q3;
-    float q2q2 = q2*q2;
-    float q2q3 = q2*q3;
-    float q3q3 = q3*q3;
-	
-	if(ax * ay * az == 0)
-	{
-		return;
-	}
-	
-	gx /= RADTODEG; // Degree transform back to radian
-	gy /= RADTODEG;
-	gz /= RADTODEG;
-	
-	recipNorm = invSqrt(ax*ax + ay*ay + az*az);
-	ax *= recipNorm;
-	ay *= recipNorm;
-	az *= recipNorm;
-	
-	vx = 2*(q1q3 - q0q2);
-	vy = 2*(q0q1 + q2q3);
-	vz = q0q0 - q1q1 - q2q2 + q3q3;
-	
-	ex = (ay*vz - az*vy);
-	ey = (az*vx - ax*vz);
-	ez = (az*vy - ay*vx);
-	
-	exInt = exInt + ex*Ki;
-	eyInt = eyInt + ey*Ki;
-	ezInt = ezInt + ez*Ki;
-	
-	gx = gx + Kp*ex + exInt;
-	gy = gy + Kp*ey + eyInt;
-	gz = gz + Kp*ez + ezInt;
-	
-	q0 = q0 + (-q1*gx - q2*gy - q3*gz)*(samplingTime /2);
-    q1 = q1 + ( q0*gx + q2*gz - q3*gy)*(samplingTime /2);
-    q2 = q2 + ( q0*gy - q1*gz + q3*gx)*(samplingTime /2);
-    q3 = q3 + ( q0*gz + q1*gy - q2*gx)*(samplingTime /2); 
-
-	recipNorm = invSqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
-    q0 *= recipNorm;
-    q1 *= recipNorm;
-    q2 *= recipNorm;
-    q3 *= recipNorm;
-	
-	samplingTime = (currentTime() - timeForYawCalculate) /1000000.0;
-	timeForYawCalculate = currentTime();	
-	
-	tarData->actualYaw.lastData   = tarData->actualYaw.newData;
-	tarData->actualYaw.newData   += samplingTime * tarData->gyroRaw.newData[2];
-	
-	if(tarData->actualYaw.newData > 180.0)
-	{
-		tarData->actualYaw.newData = (tarData->actualYaw.newData - 180) - 180;
-	}
-	if(tarData->actualYaw.newData < -180.0)
-	{
-		tarData->actualYaw.newData = 180 - (- tarData->actualYaw.newData - 180);
-	}
-	
-	tarData->actualPitch.lastData = tarData->actualPitch.newData;
-    tarData->actualPitch.newData  = asin(-2 * q1 * q3 + 2 * q0 * q2)* RADTODEG;
-	tarData->actualRoll.lastData  = tarData->actualRoll.newData;
-    tarData->actualRoll.newData   = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1)* RADTODEG;
-}
-
-
-void pidControl(ImuData *tarData)
-{
-	tarData->pidRoll.pidPout = tarData->pidRoll.pidP * (tarData->actualRoll.newData - tarData->targetRoll);
-	tarData->pidRoll.pidDout = tarData->pidRoll.pidD * (tarData->actualRoll.newData - tarData->actualRoll.lastData);
-	
-	tarData->pidPitch.pidPout = tarData->pidPitch.pidP * (tarData->actualPitch.newData - tarData->targetPitch);
-	tarData->pidPitch.pidDout = tarData->pidPitch.pidD * (tarData->actualPitch.newData - tarData->actualPitch.lastData);
-	
-	tarData->pidYaw.pidDout = tarData->pidYaw.pidD * (tarData->actualYaw.newData - tarData->actualYaw.lastData);
-	
-	tarData->pidRoll.pidFinalOut  = tarData->pidRoll.pidPout  + tarData->pidRoll.pidIout  + tarData->pidRoll.pidDout;
-	tarData->pidPitch.pidFinalOut = tarData->pidPitch.pidPout + tarData->pidPitch.pidIout + tarData->pidPitch.pidDout;
-	tarData->pidYaw.pidFinalOut   = tarData->pidYaw.pidDout;
-}
-
-
-void motorUpdate(ImuData *tarData, RespondMess *tarMessData)
-{
-	float motor[4];
-	uint8_t i;
-	
-	tarMessData->thrust = tarData->targetThrust;
-	
-	motor[0] = tarData->targetThrust + tarData->pidPitch.pidFinalOut - tarData->pidRoll.pidFinalOut - tarData->pidYaw.pidFinalOut;
-	motor[1] = tarData->targetThrust - tarData->pidPitch.pidFinalOut - tarData->pidRoll.pidFinalOut + tarData->pidYaw.pidFinalOut;
-	motor[2] = tarData->targetThrust - tarData->pidPitch.pidFinalOut + tarData->pidRoll.pidFinalOut + tarData->pidYaw.pidFinalOut;
-	motor[3] = tarData->targetThrust + tarData->pidPitch.pidFinalOut + tarData->pidRoll.pidFinalOut - tarData->pidYaw.pidFinalOut;
-	
-	motor[0] = motor[0] /(2000);
-	motor[1] = motor[1] /(2000);
-	motor[2] = motor[2] /(2000);
-	motor[3] = motor[3] /(2000);
-	
-	for(i=0; i<4; i++)
-	{
-		if(motor[i] <0.0)
-		{
-			motor[i] = 0;
-		}
-		if(motor[i] >1.0)
-		{
-			motor[i] = 1;
-		}
-	}
-	
-	if(tarData->targetThrust > 500)
-	{
-		motorPwmFlash((uint16_t)(motor[0]*Moto_PwmMax),    // M2
-					  (uint16_t)(motor[1]*Moto_PwmMax),    // M1
-					  (uint16_t)(motor[2]*Moto_PwmMax),    // M3
-					  (uint16_t)(motor[3]*Moto_PwmMax));   // M4  ????
-	}
-	else
-	{
-		motorPwmFlash(0, 0, 0, 0);
-	}
-
-	tarMessData->motor2 = (uint8_t)(motor[0]*100); 
-	tarMessData->motor3 = (uint8_t)(motor[2]*100); 
-	tarMessData->motor4 = (uint8_t)(motor[3]*100); 
-	tarMessData->motor1 = (uint8_t)(motor[1]*100);
-}
-
-
-void accelAndGyroOffset(ImuData *tarData)
-{
-	uint8_t i,ii;
-	int16_t accelRaw[3], gyroRaw[3];
-	int32_t accelSum[3] = {0, 0, 0};
-	int32_t gyroSum[3]  = {0, 0, 0};
-	
-	for(i=0; i<30; i++)
-	{
-		READ_MPU9250_ACCEL_RAW(accelRaw);
-		READ_MPU9250_GYRO_RAW(gyroRaw);
-		
-		for(ii=0; ii<3; ii++)
-		{
-			accelSum[ii] += accelRaw[ii];
-			gyroSum[ii]  += gyroRaw[ii];
-		}
-	}
-	
-	for(i=0; i<3; i++)
-	{
-		tarData->accelOffset[i] = (int16_t)(accelSum[i]/30);
-		tarData->gyroOffset[i]  = (int16_t)(gyroSum[i]/30);
-	}
-	//tarData->accelOffset[2] = tarData->accelOffset[2] - CONSTANT_G_PARA;
-}
-			
-		
-/*
 #define twoKp      1.0f
 #define twoKi      0.05f
 static float q0 = 1, q1 = 0, q2 = 0, q3 = 0;  
 static float integralFBx = 0, integralFBy = 0, integralFBz = 0;
+
+static double samplingTime = 0;
+static uint32_t timeForYawCalculate = 0;
 
 void imuUpdate(ImuData *tarData) 
 {
@@ -225,22 +33,29 @@ void imuUpdate(ImuData *tarData)
 	float gy = tarData->gyroRaw.newData[1];
 	float gz = tarData->gyroRaw.newData[2];
 	
-	static uint32_t timeForYawCalculate = 0;
-	
 	float recipNorm;
 	float halfvx, halfvy, halfvz;
 	float halfex, halfey, halfez;
 	float qa, qb, qc;
 	
-	//tarData->actualYaw += (currentTime() - timeForYawCalculate) * gz /1000000;
-	//timeForYawCalculate = currentTime();
+	samplingTime = (currentTime() - timeForYawCalculate) /1000000.0;
+	timeForYawCalculate = currentTime();	
 
 	// 如果加速计各轴的数均是0，那么忽略该加速度数据。否则在加速计数据归一化处理的时候，会导致除以0的错误。
 	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
-	if(!( ((ax >= - EPSINON) && (ax <= EPSINON)) && 
-		  ((ay >= - EPSINON) && (ay <= EPSINON)) && 
-	      ((az >= - EPSINON) && (az <= EPSINON)))) 
+	//if(!( ((ax >= - EPSINON) && (ax <= EPSINON)) && 
+	//	  ((ay >= - EPSINON) && (ay <= EPSINON)) && 
+	//      ((az >= - EPSINON) && (az <= EPSINON)))) 
+	if(ax * ay * az == 0)
 	{
+		return;
+	}
+	else
+	{
+		gx /= RADTODEG; // Degree transform back to radian
+		gy /= RADTODEG;
+		gz /= RADTODEG;
+		
 		// 把加速度计的数据进行归一化处理。其中invSqrt是平方根的倒数，
 		// 使用平方根的倒数而不是直接使用平方根的原因是使得下面的ax，ay，az的运算速度更快。
 		// 通过归一化处理后，ax，ay，az的数值范围变成-1到+1之间。
@@ -268,8 +83,8 @@ void imuUpdate(ImuData *tarData)
 		if(twoKi > 0.0f) 
 		{
 			integralFBx += twoKi * halfex * (1.0f / SAMPLINGFREQ); // integral error scaled by Ki
-			integralFBy += twoKi * halfey * (1.0f / sampleFreq);
-			integralFBz += twoKi * halfez * (1.0f / sampleFreq);
+			integralFBy += twoKi * halfey * (1.0f / SAMPLINGFREQ);
+			integralFBz += twoKi * halfez * (1.0f / SAMPLINGFREQ);
 			gx += integralFBx;  // apply integral feedback
 			gy += integralFBy;
 			gz += integralFBz;
@@ -290,16 +105,18 @@ void imuUpdate(ImuData *tarData)
 
 	// 通过上述的运算，我们得到了一个由加速计修正过后的陀螺仪数据。接下来要做的就是把修正过后的陀螺仪数据整合到四元数中。
 	// Integrate rate of change of quaternion
-	gx *= (0.5f * (1.0f / sampleFreq)); // pre-multiply common factors
-	gy *= (0.5f * (1.0f / sampleFreq));
-	gz *= (0.5f * (1.0f / sampleFreq));
+	gx *= (0.5f * samplingTime); // (0.5f * (1.0f / SAMPLINGFREQ)); // pre-multiply common factors
+	gy *= (0.5f * samplingTime);
+	gz *= (0.5f * samplingTime);
+	
 	qa = q0;
 	qb = q1;
 	qc = q2;
+	
 	q0 += (-qb * gx - qc * gy - q3 * gz);
-	q1 += (qa * gx + qc * gz - q3 * gy);
-	q2 += (qa * gy - qb * gz + q3 * gx);
-	q3 += (qa * gz + qb * gy - qc * gx);
+	q1 += ( qa * gx + qc * gz - q3 * gy);
+	q2 += ( qa * gy - qb * gz + q3 * gx);
+	q3 += ( qa * gz + qb * gy - qc * gx);
 
 	// 把上述运算后的四元数进行归一化处理。得到了物体经过旋转后的新的四元数。
 	// Normalise quaternion
@@ -309,12 +126,27 @@ void imuUpdate(ImuData *tarData)
 	q2 *= recipNorm;
 	q3 *= recipNorm;
 	
-	tarData->actualPitch = asin(-2 * q1 * q3 + 2 * q0* q2) *RADTODEG;
-    tarData->actualRoll  = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1) *RADTODEG;
-	tarData->actualYaw   = atan2f( 2 * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3 ) *RADTODEG;
+	tarData->actualYaw.lastData   = tarData->actualYaw.newData;
+	// tarData->actualYaw.newData   += samplingTime * tarData->gyroRaw.newData[2];
+	tarData->actualYaw.newData   = atan2f( 2 * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3 )* RADTODEG;
+	
+	// if(tarData->actualYaw.newData > 180.0)
+	// {
+	// 	tarData->actualYaw.newData = (tarData->actualYaw.newData - 180) - 180;
+	// }
+	// if(tarData->actualYaw.newData < -180.0)
+	// {
+	// 	tarData->actualYaw.newData = 180 - (- tarData->actualYaw.newData - 180);
+	// }
+	
+	tarData->actualPitch.lastData = tarData->actualPitch.newData;
+    tarData->actualPitch.newData  = asin(-2 * q1 * q3 + 2 * q0 * q2)* RADTODEG;
+	tarData->actualRoll.lastData  = tarData->actualRoll.newData;
+    tarData->actualRoll.newData   = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1)* RADTODEG;
 }
 
 
+/*
 void imuUpdateWithMag(ImuData *tarData) 
 {
 	float ax = tarData->accelRaw[0];
@@ -448,10 +280,8 @@ void imuUpdateWithMag(ImuData *tarData)
     tarData->actualRoll  = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3;
 	tarData->actualYaw   = atan2f( 2 * (q0 * q1 + q2 * q3), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3 )*57.3;
 }
-*/	
 
 
-/*
 void Control(ImuData *tarData)
 {
 	static float rol_i, pit_i, yaw_p;
@@ -516,6 +346,97 @@ void Control(ImuData *tarData)
 	tarData->pidRoll.pidFinalOut  = - tarData->pidRoll.pidPout  - tarData->pidRoll.pidIout  + tarData->pidRoll.pidDout;
 	tarData->pidPitch.pidFinalOut =   tarData->pidPitch.pidPout + tarData->pidPitch.pidIout + tarData->pidPitch.pidDout;
 	tarData->pidYaw.pidFinalOut   =   tarData->pidYaw.pidPout   + tarData->pidYaw.pidIout   + tarData->pidYaw.pidDout;
+}
+
+
+static float q0 = 1, q1 = 0, q2 = 0, q3 = 0;  
+static float exInt = 0, eyInt = 0, ezInt = 0;   // 按比例缩小积分误差
+static double samplingTime = 0;
+static uint32_t timeForYawCalculate = 0;
+
+
+void imuUpdate(ImuData *tarData)
+{
+	float ax = tarData->accelRaw[0];
+    float ay = tarData->accelRaw[1];
+	float az = tarData->accelRaw[2];
+	float gx = tarData->gyroRaw.newData[0];
+	float gy = tarData->gyroRaw.newData[1];
+	float gz = tarData->gyroRaw.newData[2];
+	
+	float recipNorm;
+	float vx, vy, vz;
+	float ex, ey, ez;
+	
+    float q0q0 = q0*q0;
+    float q0q1 = q0*q1;
+    float q0q2 = q0*q2;
+    float q1q1 = q1*q1;
+    float q1q3 = q1*q3;
+    float q2q2 = q2*q2;
+    float q2q3 = q2*q3;
+    float q3q3 = q3*q3;
+	
+	if(ax * ay * az == 0)
+	{
+		return;
+	}
+	
+	gx /= RADTODEG; // Degree transform back to radian
+	gy /= RADTODEG;
+	gz /= RADTODEG;
+	
+	recipNorm = invSqrt(ax*ax + ay*ay + az*az);
+	ax *= recipNorm;
+	ay *= recipNorm;
+	az *= recipNorm;
+	
+	vx = 2*(q1q3 - q0q2);
+	vy = 2*(q0q1 + q2q3);
+	vz = q0q0 - q1q1 - q2q2 + q3q3;
+	
+	ex = (ay*vz - az*vy);
+	ey = (az*vx - ax*vz);
+	ez = (az*vy - ay*vx);
+	
+	exInt = exInt + ex*Ki;
+	eyInt = eyInt + ey*Ki;
+	ezInt = ezInt + ez*Ki;
+	
+	gx = gx + Kp*ex + exInt;
+	gy = gy + Kp*ey + eyInt;
+	gz = gz + Kp*ez + ezInt;
+	
+	q0 = q0 + (-q1*gx - q2*gy - q3*gz)*(samplingTime /2);
+    q1 = q1 + ( q0*gx + q2*gz - q3*gy)*(samplingTime /2);
+    q2 = q2 + ( q0*gy - q1*gz + q3*gx)*(samplingTime /2);
+    q3 = q3 + ( q0*gz + q1*gy - q2*gx)*(samplingTime /2); 
+
+	recipNorm = invSqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
+    q0 *= recipNorm;
+    q1 *= recipNorm;
+    q2 *= recipNorm;
+    q3 *= recipNorm;
+	
+	samplingTime = (currentTime() - timeForYawCalculate) /1000000.0;
+	timeForYawCalculate = currentTime();	
+	
+	tarData->actualYaw.lastData   = tarData->actualYaw.newData;
+	tarData->actualYaw.newData   += samplingTime * tarData->gyroRaw.newData[2];
+	
+	if(tarData->actualYaw.newData > 180.0)
+	{
+		tarData->actualYaw.newData = (tarData->actualYaw.newData - 180) - 180;
+	}
+	if(tarData->actualYaw.newData < -180.0)
+	{
+		tarData->actualYaw.newData = 180 - (- tarData->actualYaw.newData - 180);
+	}
+	
+	tarData->actualPitch.lastData = tarData->actualPitch.newData;
+    tarData->actualPitch.newData  = asin(-2 * q1 * q3 + 2 * q0 * q2)* RADTODEG;
+	tarData->actualRoll.lastData  = tarData->actualRoll.newData;
+    tarData->actualRoll.newData   = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1)* RADTODEG;
 }
 */
 

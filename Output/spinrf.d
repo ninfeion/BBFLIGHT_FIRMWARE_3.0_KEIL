@@ -1,5 +1,5 @@
-.\output\spinrf.o: User\spinrf.c
-.\output\spinrf.o: User\spinrf.h
+.\output\spinrf.o: User\src\spinrf.c
+.\output\spinrf.o: .\User\inc\spinrf.h
 .\output\spinrf.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\Include\stm32f10x.h
 .\output\spinrf.o: C:\Extra Software\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include\core_cm3.h
 .\output\spinrf.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\stdint.h
@@ -18,7 +18,7 @@
 .\output\spinrf.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\stm32f10x_usart.h
 .\output\spinrf.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\misc.h
 .\output\spinrf.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\stm32f10x_exti.h
-.\output\spinrf.o: User\systeminit.h
+.\output\spinrf.o: .\User\inc\systeminit.h
 .\output\spinrf.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\stm32f10x_flash.h
-.\output\spinrf.o: User\system_config.h
-.\output\spinrf.o: User\delay.h
+.\output\spinrf.o: .\User\system_config.h
+.\output\spinrf.o: .\User\inc\delay.h

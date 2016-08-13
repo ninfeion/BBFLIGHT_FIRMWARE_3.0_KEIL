@@ -15,6 +15,8 @@
 
 //#define USB_DEBUG
 #define USE_LPF_FILTER
+#define SAMPLINGFREQ  200.0f
+#define LPFCUTOFFFREQ 50.0f
 
 #endif
 

@@ -21,7 +21,6 @@
 .\output\imucal.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\stm32f10x_flash.h
 .\output\imucal.o: User\system_config.h
 .\output\imucal.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\math.h
-.\output\imucal.o: User\pwm.h
 .\output\imucal.o: User\mpu9250.h
 .\output\imucal.o: User\i2c.h
 .\output\imucal.o: .\User\USB\STM32_USB-FS-Device_Driver\inc\usb_type.h

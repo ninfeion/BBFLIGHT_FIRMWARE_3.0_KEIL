@@ -54,6 +54,9 @@ typedef struct
 		float pidD;
 		float pidI;
 		float pidP;
+		float lastError;
+		float preError;
+		float errorSum;
 		float pidDout;
 		float pidIout;
 		float pidPout;
@@ -63,6 +66,9 @@ typedef struct
 		float pidD;
 		float pidI;
 		float pidP;
+		float lastError;
+		float preError;
+		float errorSum;
 		float pidDout;
 		float pidIout;
 		float pidPout;
@@ -72,6 +78,9 @@ typedef struct
 		float pidD;
 		float pidI;
 		float pidP; 
+		float lastError;
+		float preError;
+		float errorSum;
 		float pidDout;
 		float pidIout;
 		float pidPout;

@@ -1,5 +1,5 @@
-.\output\i2c.o: User\i2c.c
-.\output\i2c.o: User\i2c.h
+.\output\i2c.o: User\src\i2c.c
+.\output\i2c.o: .\User\inc\i2c.h
 .\output\i2c.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\Include\stm32f10x.h
 .\output\i2c.o: C:\Extra Software\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include\core_cm3.h
 .\output\i2c.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\stdint.h
@@ -19,4 +19,4 @@
 .\output\i2c.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\misc.h
 .\output\i2c.o: .\User\USB\STM32_USB-FS-Device_Driver\inc\usb_type.h
 .\output\i2c.o: .\User\USB\inc\usb_conf.h
-.\output\i2c.o: User\delay.h
+.\output\i2c.o: .\User\inc\delay.h

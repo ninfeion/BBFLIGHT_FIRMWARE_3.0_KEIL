@@ -1,5 +1,5 @@
-.\output\adc.o: User\adc.c
-.\output\adc.o: User\adc.h
+.\output\adc.o: User\src\adc.c
+.\output\adc.o: .\User\inc\adc.h
 .\output\adc.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\Include\stm32f10x.h
 .\output\adc.o: C:\Extra Software\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include\core_cm3.h
 .\output\adc.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\stdint.h

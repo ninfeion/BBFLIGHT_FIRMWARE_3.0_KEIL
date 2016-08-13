@@ -2,6 +2,9 @@
 #define _MPU9250_H_
 #include "i2c.h"
 
+#include "stm32f10x.h"
+#include "systeminit.h"
+
 //寄存器定义
 #define RA_SELF_TEST_X_GYRO			0X00
 #define RA_SELF_TEST_Y_GYRO			0X01
@@ -231,5 +234,7 @@ void READ_MPU9250_ACCEL_RAW(int16_t *ACCELDATA);
 void READ_MPU9250_GYRO_RAW(int16_t *GYRODATA);
 int16_t READ_MPU9250_TEMP_RAW(void);
 void READ_MPU9250_Bypass_MAG_RAW(int16_t *MAGDATA);
+
+void accelAndGyroOffset(ImuData *tarData);
 
 #endif

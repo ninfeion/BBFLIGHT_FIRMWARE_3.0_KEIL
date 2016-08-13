@@ -1,5 +1,5 @@
-.\output\pwm.o: User\pwm.c
-.\output\pwm.o: User\pwm.h
+.\output\pwm.o: User\src\pwm.c
+.\output\pwm.o: .\User\inc\pwm.h
 .\output\pwm.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\Include\stm32f10x.h
 .\output\pwm.o: C:\Extra Software\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include\core_cm3.h
 .\output\pwm.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\stdint.h

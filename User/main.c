@@ -10,6 +10,7 @@
 #include "ms5611.h"
 #include "system_loop.h"
 #include "imucal.h"
+#include "control.h"
 #include "filter.h"
 #include "usb2com.h"
 
@@ -82,37 +83,39 @@ int main(void)
 	systemLoopTim1Init();
 	
 	#ifdef USB_DEBUG
-	usbInit();
+		usbInit();
 	#endif
+	
+	memset (&BBImu, 0, sizeof(ImuData));
 	
 	accelAndGyroOffset(&BBImu);
 	
 	#ifdef USE_LPF_FILTER
-	LPF2pSetCutoffFreq_1(SAMPLINGFREQ, LPFCUTOFFFREQ);	
-	LPF2pSetCutoffFreq_2(SAMPLINGFREQ, LPFCUTOFFFREQ);
-	LPF2pSetCutoffFreq_3(SAMPLINGFREQ, LPFCUTOFFFREQ);
-	LPF2pSetCutoffFreq_4(SAMPLINGFREQ, LPFCUTOFFFREQ);
-	LPF2pSetCutoffFreq_5(SAMPLINGFREQ, LPFCUTOFFFREQ);
-	LPF2pSetCutoffFreq_6(SAMPLINGFREQ, LPFCUTOFFFREQ);
+		LPF2pSetCutoffFreq_1(SAMPLINGFREQ, LPFCUTOFFFREQ);	
+		LPF2pSetCutoffFreq_2(SAMPLINGFREQ, LPFCUTOFFFREQ);
+		LPF2pSetCutoffFreq_3(SAMPLINGFREQ, LPFCUTOFFFREQ);
+		LPF2pSetCutoffFreq_4(SAMPLINGFREQ, LPFCUTOFFFREQ);
+		LPF2pSetCutoffFreq_5(SAMPLINGFREQ, LPFCUTOFFFREQ);
+		LPF2pSetCutoffFreq_6(SAMPLINGFREQ, LPFCUTOFFFREQ);
 	#endif
-
-	BBImu.pidPitch.pidP    = 3.0; // 3
-	BBImu.pidPitch.pidD    = 14.0; // 14
-	BBImu.pidPitch.pidI    = 0.0;
-	BBImu.pidPitch.pidIout = 0.0;
 	
-	BBImu.pidRoll.pidP    = 1.5; // 3
-	BBImu.pidRoll.pidD    = 11.0; // 11
+	BBImu.pidPitch.pidP    = 0.0;   // 7.1;   //  5.0
+	BBImu.pidPitch.pidD    = 0.0;   // 7.8;   // 11.0; // 166.0
+	BBImu.pidPitch.pidI    = 0.0;
+	// BBImu.pidPitch.pidIout = 0.0;
+	
+	BBImu.pidRoll.pidP    = 7.2;   // 4.5
+	BBImu.pidRoll.pidD    = 5.0;   // 11.0; // 167.0
 	BBImu.pidRoll.pidI    = 0.0;
-	BBImu.pidRoll.pidIout = 0.0;
+	// BBImu.pidRoll.pidIout = 0.0;
 	
 	BBImu.pidYaw.pidP    = 0.0;
-	BBImu.pidYaw.pidD    = 0.0;
+	BBImu.pidYaw.pidD    = 0.0;    // 12.0;  // 139.0
 	BBImu.pidYaw.pidI    = 0.0;
-	BBImu.pidYaw.pidPout = 0.0;
-	BBImu.pidYaw.pidIout = 0.0;
+	// BBImu.pidYaw.pidPout = 0.0;
+	// BBImu.pidYaw.pidIout = 0.0;
 	
-	BBImu.actualYaw.newData = 0;
+	// BBImu.actualYaw.newData = 0;
 	
 	whileStart = currentTime();
 	while(1)
@@ -179,38 +182,38 @@ int main(void)
 				READ_MPU9250_ACCEL_RAW(ACCELDATA);
 				READ_MPU9250_GYRO_RAW(GYRODATA);
 				#ifdef USE_MAG_PASSMODE                                                                  // mpu9250.h
-				READ_MPU9250_Bypass_MAG_RAW(MAGDATA);
+					READ_MPU9250_Bypass_MAG_RAW(MAGDATA);
 				#endif				
 				
 				for(i=0; i<3; i++)
 				{
-					BBImu.accelRaw[i]         = ACCELDATA[i]; // - BBImu.accelOffset[i];   // /ACCELLSB; // Binary
+					BBImu.accelRaw[i]         = ACCELDATA[i] - BBImu.accelOffset[i];       // /ACCELLSB; // Binary
 					BBImu.gyroRaw.lastData[i] = BBImu.gyroRaw.newData[i];
 					BBImu.gyroRaw.newData[i]  = (GYRODATA[i] - BBImu.gyroOffset[i]) /GYROLSB;            // Degree
 					#ifdef USE_MAG_PASSMODE                                                              // mpu9250.h
-					BBImu.magRaw[i]           = MAGDATA[i]*MAGLSB;
+						BBImu.magRaw[i]       = MAGDATA[i] *MAGLSB;
 					#endif
 				}
 				
 				#ifdef USE_LPF_FILTER
-				BBImu.accelRaw[0] = LPF2pApply_1(BBImu.accelRaw[0]);
-				BBImu.accelRaw[1] = LPF2pApply_2(BBImu.accelRaw[1]);
-				BBImu.accelRaw[2] = LPF2pApply_3(BBImu.accelRaw[2]);
-				
-				BBImu.gyroRaw.newData[0] = LPF2pApply_4(BBImu.gyroRaw.newData[0]);
-				BBImu.gyroRaw.newData[1] = LPF2pApply_5(BBImu.gyroRaw.newData[1]);
-				BBImu.gyroRaw.newData[2] = LPF2pApply_6(BBImu.gyroRaw.newData[2]);
+					BBImu.accelRaw[0] = LPF2pApply_1(BBImu.accelRaw[0]);
+					BBImu.accelRaw[1] = LPF2pApply_2(BBImu.accelRaw[1]);
+					BBImu.accelRaw[2] = LPF2pApply_3(BBImu.accelRaw[2]);
+					
+					BBImu.gyroRaw.newData[0] = LPF2pApply_4(BBImu.gyroRaw.newData[0]);
+					BBImu.gyroRaw.newData[1] = LPF2pApply_5(BBImu.gyroRaw.newData[1]);
+					BBImu.gyroRaw.newData[2] = LPF2pApply_6(BBImu.gyroRaw.newData[2]);
 				#endif				
 				
-				imuUpdate(&BBImu);
-				pidControl(&BBImu);
+				// imuUpdate(&BBImu);
+				IMUSO3Thread(&BBImu);
 			}
 		
 			#ifdef BROENABLED
-			MS5611_PROM_READ(MS5611_PROM);
-			MS5611_GetTempture(CMD_MS5611_D2_OSR_4096, MS5611_PROM, MS5611_TEMP_NoOffset);
-			MS5611_GetPressure(CMD_MS5611_D1_OSR_4096, MS5611_PROM, MS5611_TEMP_NoOffset, MS5611_TaPAfterOffset);
-			PRESSUREDATA = MS5611_TaPAfterOffset[1] * 0.01f;
+				MS5611_PROM_READ(MS5611_PROM);
+				MS5611_GetTempture(CMD_MS5611_D2_OSR_4096, MS5611_PROM, MS5611_TEMP_NoOffset);
+				MS5611_GetPressure(CMD_MS5611_D1_OSR_4096, MS5611_PROM, MS5611_TEMP_NoOffset, MS5611_TaPAfterOffset);
+				PRESSUREDATA = MS5611_TaPAfterOffset[1] * 0.01f;
 			#endif
 
 			attitudeUpdateFlag = 0;
@@ -220,6 +223,7 @@ int main(void)
 		}		
 		if(motorUpdateFlag == 1)
 		{
+			pidControl(&BBImu);
 			motorUpdate(&BBImu, &BBMess);	
 			
 			motorUpdateFlag = 0;

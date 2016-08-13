@@ -1,5 +1,5 @@
-.\output\system_loop.o: User\system_loop.c
-.\output\system_loop.o: User\system_loop.h
+.\output\system_loop.o: User\src\system_loop.c
+.\output\system_loop.o: .\User\inc\system_loop.h
 .\output\system_loop.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\Include\stm32f10x.h
 .\output\system_loop.o: C:\Extra Software\Keil_v5\ARM\PACK\ARM\CMSIS\3.20.4\CMSIS\Include\core_cm3.h
 .\output\system_loop.o: C:\Extra Software\Keil_v5\ARM\ARMCC\bin\..\include\stdint.h
@@ -17,7 +17,7 @@
 .\output\system_loop.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\stm32f10x_tim.h
 .\output\system_loop.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\stm32f10x_usart.h
 .\output\system_loop.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\misc.h
-.\output\system_loop.o: User\spinrf.h
+.\output\system_loop.o: .\User\inc\spinrf.h
 .\output\system_loop.o: C:\Extra Software\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\StdPeriph_Driver\inc\stm32f10x_exti.h
-.\output\system_loop.o: User\delay.h
-.\output\system_loop.o: User\system_config.h
+.\output\system_loop.o: .\User\inc\delay.h
+.\output\system_loop.o: .\User\system_config.h
