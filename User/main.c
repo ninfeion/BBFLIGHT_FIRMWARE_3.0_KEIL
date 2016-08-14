@@ -14,16 +14,6 @@
 #include "filter.h"
 #include "usb2com.h"
 
-#define MAGREADDELAY  7
-#define PRESREADDELAY 10
-
-enum reloadStatus
-{
-	ready,
-	reloading,
-	reloadfinish
-}magStatus = ready,presStatus = ready;
-
 #define TX_MODE            0
 #define RX_MODE            1
 #define TRANS_TO_TX        2
@@ -48,8 +38,30 @@ int16_t ACCELDATA[3];
 int16_t GYRODATA[3];
 int16_t MAGDATA[3];
 
-static uint16_t MS5611_PROM[7];
-static float MS5611_TEMP_NoOffset[2],MS5611_TaPAfterOffset[2],PRESSUREDATA;
+#define MAGREADDELAY  7
+#define PRESREADDELAY 10
+
+enum reloadStatus
+{
+	ready,
+	reloading,
+	reloadfinish
+}magStatus = ready;
+
+enum presReloadStatus
+{
+	presready,
+	tempreloading,
+	presreloading,
+	presreloadfinish
+}presStatus = presready;
+
+float magReadCount = 0;
+float presReadCount = 0;
+
+uint16_t MS5611_PROM[7];
+uint32_t ms5611TempRaw, ms5611PresRaw;
+float ms5611FinalData[2];
 
 /////////////////////////
 void nrfTransmitResult(uint8_t res, uint8_t linkQuality);
@@ -68,16 +80,23 @@ int main(void)
     spi2NrfInit();
     if(NRF24L01_Check() == 1)
 	{
-        BBSYSTEM.NRFONLINE = 1;
+        BBSystem.NRFONLINE = 1;
 	}
 	adcInit();
 	i2cInit();
 	mpu9250Init();
 	if(MPU9250_Check() == TRUE)		
 	{
-		BBSYSTEM.MPU9250ONLINE = 1;
+		BBSystem.MPU9250ONLINE = 1;
 	}
-	ms5611Init();
+	
+	#ifdef BRO_ENABLED
+		ms5611Init();
+		ms5611PromRead(MS5611_PROM);
+		BBMess.haveBro = 1;
+	#else
+	    BBMess.haveBro = 0;
+	#endif
 
 	pwmInit();	
 	systemLoopTim1Init();
@@ -97,25 +116,25 @@ int main(void)
 		LPF2pSetCutoffFreq_4(SAMPLINGFREQ, LPFCUTOFFFREQ);
 		LPF2pSetCutoffFreq_5(SAMPLINGFREQ, LPFCUTOFFFREQ);
 		LPF2pSetCutoffFreq_6(SAMPLINGFREQ, LPFCUTOFFFREQ);
+		
+		#ifdef USE_MAG_PASSMODE 
+			LPF2pSetCutoffFreq_7( 113.63, LPFCUTOFFFREQ);
+			LPF2pSetCutoffFreq_8( 113.63, LPFCUTOFFFREQ);
+			LPF2pSetCutoffFreq_9( 113.63, LPFCUTOFFFREQ);
+		#endif
 	#endif
 	
 	BBImu.pidPitch.pidP    = 0.0;   // 7.1;   //  5.0
 	BBImu.pidPitch.pidD    = 0.0;   // 7.8;   // 11.0; // 166.0
 	BBImu.pidPitch.pidI    = 0.0;
-	// BBImu.pidPitch.pidIout = 0.0;
 	
 	BBImu.pidRoll.pidP    = 7.2;   // 4.5
 	BBImu.pidRoll.pidD    = 5.0;   // 11.0; // 167.0
 	BBImu.pidRoll.pidI    = 0.0;
-	// BBImu.pidRoll.pidIout = 0.0;
-	
+
 	BBImu.pidYaw.pidP    = 0.0;
 	BBImu.pidYaw.pidD    = 0.0;    // 12.0;  // 139.0
 	BBImu.pidYaw.pidI    = 0.0;
-	// BBImu.pidYaw.pidPout = 0.0;
-	// BBImu.pidYaw.pidIout = 0.0;
-	
-	// BBImu.actualYaw.newData = 0;
 	
 	whileStart = currentTime();
 	while(1)
@@ -168,31 +187,80 @@ int main(void)
 			}
 
 			radioFlag = 0;
-			BBSYSTEM.nrfExecPrd = currentTime() - timeTemp;
-			BBSYSTEM.idlePrd = currentTime() - BBSYSTEM.nrfExecPrd - whileStart;
+			BBSystem.nrfExecPrd = currentTime() - timeTemp;
+			BBSystem.idlePrd = currentTime() - BBSystem.nrfExecPrd - whileStart;
 			continue;
-		}				
+		}		
+		#ifdef USE_MAG_PASSMODE 		
+			switch(magStatus)
+			{
+				case ready:        readMpu9250BypassMagRawStateMachineReady(1);
+								   magReadCount = currentTime(); // us
+							       magStatus = reloading;
+							       break;
+				case reloading:    if( (currentTime() - magReadCount) >= MAGREADDELAY * 1000) // ms
+								   {
+									   magStatus = reloadfinish;
+								   }
+					               break;
+				case reloadfinish: readMpu9250BypassMagRawStateMachineRead(MAGDATA); 
+								   for(i=0; i<3; i++)
+								   {
+									   BBImu.magRaw[i] = (float)MAGDATA[i]; // *MAGLSB; // Binary
+								   }
+								   #ifdef USE_LPF_FILTER
+									   BBImu.magRaw[0] = LPF2pApply_7(BBImu.magRaw[0]); 
+									   BBImu.magRaw[1] = LPF2pApply_8(BBImu.magRaw[1]);
+									   BBImu.magRaw[2] = LPF2pApply_9(BBImu.magRaw[2]);
+								   #endif
+								   magStatus = ready;
+								   break;
+			}
+		#endif
+		#ifdef BRO_ENABLED
+			switch(presStatus)
+			{
+				case presready:        ms5611StartConversion(CMD_MS5611_D2_OSR_4096);
+				                       presReadCount = currentTime();
+									   presStatus = tempreloading;
+									   break;
+				case tempreloading:    if( (currentTime() - presReadCount) >= PRESREADDELAY * 1000) 
+									   {
+										   ms5611TempRaw = ms5611GetConversion();
+										   
+										   ms5611StartConversion(CMD_MS5611_D1_OSR_4096);
+										   presReadCount = currentTime();
+										   presStatus = presreloading;
+									   }
+					                   break;
+				case presreloading:    if( (currentTime() - presReadCount) >= PRESREADDELAY * 1000) 
+									   {
+										   ms5611PresRaw = ms5611GetConversion();
+										   presStatus = presreloadfinish;
+									   }
+									   break;
+				case presreloadfinish: ms5611FinalCalculation(ms5611PresRaw, ms5611TempRaw, MS5611_PROM, ms5611FinalData);
+									   BBSystem.temperature = ms5611FinalData[0];
+									   BBMess.broVal = ms5611FinalData[1] * 0.01f;
+									   presStatus = presready;
+					                   break;
+			}
+		#endif
 		LedD_off;
 		if(attitudeUpdateFlag == 1)
 		{
 			timeTemp = currentTime();
 			LedD_on;
-			if(BBSYSTEM.MPU9250ONLINE == 1)
+			if(BBSystem.MPU9250ONLINE == 1)
 			{
 				READ_MPU9250_ACCEL_RAW(ACCELDATA);
 				READ_MPU9250_GYRO_RAW(GYRODATA);
-				#ifdef USE_MAG_PASSMODE                                                                  // mpu9250.h
-					READ_MPU9250_Bypass_MAG_RAW(MAGDATA);
-				#endif				
-				
+						
 				for(i=0; i<3; i++)
 				{
-					BBImu.accelRaw[i]         = ACCELDATA[i] - BBImu.accelOffset[i];       // /ACCELLSB; // Binary
+					BBImu.accelRaw[i]         = (float)ACCELDATA[i] - BBImu.accelOffset[i];       // /ACCELLSB; // Binary
 					BBImu.gyroRaw.lastData[i] = BBImu.gyroRaw.newData[i];
-					BBImu.gyroRaw.newData[i]  = (GYRODATA[i] - BBImu.gyroOffset[i]) /GYROLSB;            // Degree
-					#ifdef USE_MAG_PASSMODE                                                              // mpu9250.h
-						BBImu.magRaw[i]       = MAGDATA[i] *MAGLSB;
-					#endif
+					BBImu.gyroRaw.newData[i]  = ((float)GYRODATA[i] - BBImu.gyroOffset[i]) /GYROLSB;            // Degree
 				}
 				
 				#ifdef USE_LPF_FILTER
@@ -208,17 +276,10 @@ int main(void)
 				// imuUpdate(&BBImu);
 				IMUSO3Thread(&BBImu);
 			}
-		
-			#ifdef BROENABLED
-				MS5611_PROM_READ(MS5611_PROM);
-				MS5611_GetTempture(CMD_MS5611_D2_OSR_4096, MS5611_PROM, MS5611_TEMP_NoOffset);
-				MS5611_GetPressure(CMD_MS5611_D1_OSR_4096, MS5611_PROM, MS5611_TEMP_NoOffset, MS5611_TaPAfterOffset);
-				PRESSUREDATA = MS5611_TaPAfterOffset[1] * 0.01f;
-			#endif
 
 			attitudeUpdateFlag = 0;
-			BBSYSTEM.imuExecPrd = currentTime() - timeTemp;
-			BBSYSTEM.idlePrd = currentTime() - BBSYSTEM.imuExecPrd - whileStart;
+			BBSystem.imuExecPrd = currentTime() - timeTemp;
+			BBSystem.idlePrd = currentTime() - BBSystem.imuExecPrd - whileStart;
 			continue;
 		}		
 		if(motorUpdateFlag == 1)

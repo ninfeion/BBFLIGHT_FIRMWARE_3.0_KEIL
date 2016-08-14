@@ -3,12 +3,14 @@
 #include "i2c.h"
 #include "math.h"
 
+
 void ms5611Init(void)
 {
-	MS5611_Reset();
+	ms5611Reset();
+	delay_ms(100);
 }
 
-void MS5611_Reset(void)
+void ms5611Reset(void)
 {
 	I2C_Start();
 	I2C_SendByte(MS5611_ADDRESS); //写地址
@@ -18,7 +20,7 @@ void MS5611_Reset(void)
 	I2C_Stop();
 }
 
-void MS5611_PROM_READ(uint16_t *PROM_C)
+void ms5611PromRead(uint16_t *PROM_C)
 {
 	uint8_t DATATEMP[2],count;
 	
@@ -27,7 +29,7 @@ void MS5611_PROM_READ(uint16_t *PROM_C)
 		I2C_Start();
 		I2C_SendByte(MS5611_ADDRESS);
 		I2C_WaitAck();
-		I2C_SendByte(CMD_MS5611_PROM_RD+count*2);
+		I2C_SendByte(CMD_MS5611_PROM_RD + count*2);
 		I2C_WaitAck();
 		I2C_Stop();
 		delay_us(5);
@@ -46,19 +48,22 @@ void MS5611_PROM_READ(uint16_t *PROM_C)
 	}
 }
 
-uint32_t MS5611_SendCmd_StartConversionAndGetIt(uint8_t OSR_Cmd_SelectTempOrPres)
+
+void ms5611StartConversion(uint8_t OSR_Cmd_SelectTempOrPres)
+{
+	I2C_Start();
+	I2C_SendByte(MS5611_ADDRESS); 
+	I2C_WaitAck();
+	I2C_SendByte(OSR_Cmd_SelectTempOrPres);
+	I2C_WaitAck();	
+	I2C_Stop();
+}
+
+
+uint32_t ms5611GetConversion(void)
 {
 	uint8_t Datatemp[3];
 	uint32_t ConversionSequence;
-	
-	I2C_Start();
-	I2C_SendByte(MS5611_ADDRESS); //写地址
-	I2C_WaitAck();
-	I2C_SendByte(OSR_Cmd_SelectTempOrPres);//发送复位命令
-	I2C_WaitAck();	
-	I2C_Stop();
-	
-	delay_us(ConversionTime);
 	
 	I2C_Start();
 	I2C_SendByte(MS5611_ADDRESS); //写地址
@@ -81,30 +86,16 @@ uint32_t MS5611_SendCmd_StartConversionAndGetIt(uint8_t OSR_Cmd_SelectTempOrPres
 	return ConversionSequence;
 }
 
-void MS5611_GetTempture(uint8_t SelectTempOsr, uint16_t *PROM_C, float *TEMPERATURE_DATA)
-{
-	//TEMPERATURE_DATA[0] dT
-	//TEMPERATURE_DATA[1] 初始温度
-	
-	uint32_t D2_DATA;
-	//float D2_dT,TEMPERATURE;
-	
-	D2_DATA = MS5611_SendCmd_StartConversionAndGetIt(SelectTempOsr);
-	TEMPERATURE_DATA[0] = D2_DATA - (((int32_t)PROM_C[5] ) << 8 );//= D2_dT 
-	TEMPERATURE_DATA[1] = 2000 + TEMPERATURE_DATA[0] * ((int32_t)PROM_C[6])/8388608;//= TEMPERATURE
-}
 
-void MS5611_GetPressure(uint8_t SelectPresOsr, uint16_t *PROM_C, float *TEMPERATURE_DATA, float *AfterOffset_TempPresDATA)
+void ms5611FinalCalculation(uint32_t rawPress, uint32_t tempCache, uint16_t *PROM_C, float *outPutData)
 {
-	//AfterOffset_TempPresDATA[0] 修正后的温度
-	//AfterOffset_TempPresDATA[1] 修正后的气压
-	
-	uint32_t D1_DATA;
-	double SENS,OFF;
+	float TEMPERATURE_DATA[2];
 	float T2,OFF2,SENS2,Aux;
-	//float PRESSURE,TEMPERATURE;
+	double SENS,OFF;
 	
-	D1_DATA = MS5611_SendCmd_StartConversionAndGetIt(SelectPresOsr);
+	TEMPERATURE_DATA[0] = tempCache - (((int32_t)PROM_C[5] ) << 8 );                 // = D2_dT 
+	TEMPERATURE_DATA[1] = 2000 + TEMPERATURE_DATA[0] * ((int32_t)PROM_C[6])/8388608; // = TEMPERATURE
+	
 	OFF = ((int64_t)PROM_C[2]*65536) + (( (int64_t)PROM_C[4] * TEMPERATURE_DATA[0] )/128);
 	SENS = ((int64_t)PROM_C[1]*32768) + (( (int64_t)PROM_C[2] * TEMPERATURE_DATA[0] )/256);
 	
@@ -117,24 +108,26 @@ void MS5611_GetPressure(uint8_t SelectPresOsr, uint16_t *PROM_C, float *TEMPERAT
 		
 		if(TEMPERATURE_DATA[1] < -1500)
 		{
-			//OFF2 = OFF2 + 7* ((int64_t)TEMPERATURE_DATA[1] + 1500)*(TEMPERATURE_DATA[1] + 1500);
-			//SENS2 =SENS2 + (11* ((int64_t)TEMPERATURE_DATA[1] + 1500)*(TEMPERATURE_DATA[1] + 1500)>>1);  
+			OFF2 += 7* (TEMPERATURE_DATA[1] + 1500)*(TEMPERATURE_DATA[1] + 1500);
+			SENS2 += (11* (TEMPERATURE_DATA[1] + 1500)*(TEMPERATURE_DATA[1] + 1500)/2);  
 		} 
 	}
-	else//TEMP>20C
+	else   // TEMP>20C
 	{
 		T2=0;
 		OFF2=0;
 		SENS2=0;
 	}
 
-	AfterOffset_TempPresDATA[0]  = TEMPERATURE_DATA[1] - T2;//= TEMPERATURE
+	outPutData[0] = TEMPERATURE_DATA[1] - T2; // real temperature
 	OFF = OFF - OFF2;
 	SENS = SENS - SENS2;
 	
-	AfterOffset_TempPresDATA[1] = (D1_DATA*SENS/2097152 - OFF) / 32768;//= PRESSURE
+	outPutData[1] =  ((double)rawPress*SENS/2097152 - OFF) / 32768; // real pressure
 }
 
+
+/*
 uint8_t MS5611_GetAltitude(float *AfterOffset_TempPresDATA, float *Altitude_DATA)
 {
 	//Altitude_DATA[0] 上电的气压 0参考高度
@@ -163,6 +156,6 @@ uint8_t MS5611_GetAltitude(float *AfterOffset_TempPresDATA, float *Altitude_DATA
 		return 1;
 	}
 }
-
+*/
 
 

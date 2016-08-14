@@ -16,5 +16,12 @@ float LPF2pApply_5(float sample);
 void LPF2pSetCutoffFreq_6(float sample_freq, float cutoff_freq);
 float LPF2pApply_6(float sample);
 
+void LPF2pSetCutoffFreq_7(float sample_freq, float cutoff_freq);
+float LPF2pApply_7(float sample);
+void LPF2pSetCutoffFreq_8(float sample_freq, float cutoff_freq);
+float LPF2pApply_8(float sample);
+void LPF2pSetCutoffFreq_9(float sample_freq, float cutoff_freq);
+float LPF2pApply_9(float sample);
+
 #endif
 

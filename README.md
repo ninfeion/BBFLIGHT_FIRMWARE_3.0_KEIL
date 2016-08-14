@@ -40,6 +40,8 @@ mpu9250.h
 \#define MAGSCALE14BITS<br>
 \#define MAGSCALE16BITS<br>
 
+\#define USE_MAG_PASSMODE<br>
+
 ========================
 
 16Mhz 下USB有大bug:

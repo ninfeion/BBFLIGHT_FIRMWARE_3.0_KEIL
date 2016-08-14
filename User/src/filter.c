@@ -347,3 +347,179 @@ float LPF2pApply_6(float sample)
 		return output;
 	}
 }
+
+
+static float           _cutoff_freq7; 
+static float           _a17;
+static float           _a27;
+static float           _b07;
+static float           _b17;
+static float           _b27;
+static float           _delay_element_17;        // buffered sample -1
+static float           _delay_element_27;        // buffered sample -2
+void LPF2pSetCutoffFreq_7(float sample_freq, float cutoff_freq)
+{
+	float fr =0;  
+    float ohm =0;
+    float c =0;
+	
+	fr= sample_freq/cutoff_freq;
+	ohm=tanf(M_PI_F/fr);
+	c=1.0f+2.0f*cosf(M_PI_F/4.0f)*ohm + ohm*ohm;
+	
+    _cutoff_freq7 = cutoff_freq;
+    if (_cutoff_freq7 > 0.0f) 
+	{
+		_b07 = ohm*ohm/c;
+		_b17 = 2.0f*_b07;
+		_b27 = _b07;
+		_a17 = 2.0f*(ohm*ohm-1.0f)/c;
+		_a27 = (1.0f-2.0f*cosf(M_PI_F/4.0f)*ohm+ohm*ohm)/c;
+	}
+}
+
+float LPF2pApply_7(float sample)
+{
+	
+	float delay_element_0 = 0, output=0;
+    if (_cutoff_freq7 <= 0.0f) 
+	{
+        // no filtering
+        return sample;
+    }
+	else
+	{
+		delay_element_0 = sample - _delay_element_17 * _a17 - _delay_element_27 * _a27;
+		// do the filtering
+		if (isnan(delay_element_0) || isinf(delay_element_0)) 
+		{
+			// don't allow bad values to propogate via the filter
+			delay_element_0 = sample;
+		}
+		output = delay_element_0 * _b07 + _delay_element_17 * _b17 + _delay_element_27 * _b27;
+				
+		_delay_element_27 = _delay_element_17;
+		_delay_element_17 = delay_element_0;
+
+		// return the value.  Should be no need to check limits
+		return output;
+	}
+}
+
+
+static float           _cutoff_freq8; 
+static float           _a18;
+static float           _a28;
+static float           _b08;
+static float           _b18;
+static float           _b28;
+static float           _delay_element_18;        // buffered sample -1
+static float           _delay_element_28;        // buffered sample -2
+void LPF2pSetCutoffFreq_8(float sample_freq, float cutoff_freq)
+{
+	float fr =0;  
+    float ohm =0;
+    float c =0;
+	
+	fr= sample_freq/cutoff_freq;
+	ohm=tanf(M_PI_F/fr);
+	c=1.0f+2.0f*cosf(M_PI_F/4.0f)*ohm + ohm*ohm;
+	
+    _cutoff_freq8 = cutoff_freq;
+    if (_cutoff_freq8 > 0.0f) 
+	{
+		_b08 = ohm*ohm/c;
+		_b18 = 2.0f*_b08;
+		_b28 = _b08;
+		_a18 = 2.0f*(ohm*ohm-1.0f)/c;
+		_a28 = (1.0f-2.0f*cosf(M_PI_F/4.0f)*ohm+ohm*ohm)/c;
+	}
+}
+
+float LPF2pApply_8(float sample)
+{
+	
+	float delay_element_0 = 0, output=0;
+    if (_cutoff_freq8 <= 0.0f) 
+	{
+        // no filtering
+        return sample;
+    }
+	else
+	{
+		delay_element_0 = sample - _delay_element_18 * _a18 - _delay_element_28 * _a28;
+		// do the filtering
+		if (isnan(delay_element_0) || isinf(delay_element_0)) 
+		{
+			// don't allow bad values to propogate via the filter
+			delay_element_0 = sample;
+		}
+		output = delay_element_0 * _b08 + _delay_element_18 * _b18 + _delay_element_28 * _b28;
+				
+		_delay_element_28 = _delay_element_18;
+		_delay_element_18 = delay_element_0;
+
+		// return the value.  Should be no need to check limits
+		return output;
+	}
+}
+
+
+static float           _cutoff_freq9; 
+static float           _a19;
+static float           _a29;
+static float           _b09;
+static float           _b19;
+static float           _b29;
+static float           _delay_element_19;        // buffered sample -1
+static float           _delay_element_29;        // buffered sample -2
+void LPF2pSetCutoffFreq_9(float sample_freq, float cutoff_freq)
+{
+	float fr =0;  
+    float ohm =0;
+    float c =0;
+	
+	fr= sample_freq/cutoff_freq;
+	ohm=tanf(M_PI_F/fr);
+	c=1.0f+2.0f*cosf(M_PI_F/4.0f)*ohm + ohm*ohm;
+	
+    _cutoff_freq9 = cutoff_freq;
+    if (_cutoff_freq9 > 0.0f) 
+	{
+		_b09 = ohm*ohm/c;
+		_b19 = 2.0f*_b09;
+		_b29 = _b09;
+		_a19 = 2.0f*(ohm*ohm-1.0f)/c;
+		_a29 = (1.0f-2.0f*cosf(M_PI_F/4.0f)*ohm+ohm*ohm)/c;
+	}
+}
+
+float LPF2pApply_9(float sample)
+{
+	
+	float delay_element_0 = 0, output=0;
+    if (_cutoff_freq9 <= 0.0f) 
+	{
+        // no filtering
+        return sample;
+    }
+	else
+	{
+		delay_element_0 = sample - _delay_element_19 * _a19 - _delay_element_29 * _a29;
+		// do the filtering
+		if (isnan(delay_element_0) || isinf(delay_element_0)) 
+		{
+			// don't allow bad values to propogate via the filter
+			delay_element_0 = sample;
+		}
+		output = delay_element_0 * _b09 + _delay_element_19 * _b19 + _delay_element_29 * _b29;
+				
+		_delay_element_29 = _delay_element_19;
+		_delay_element_19 = delay_element_0;
+
+		// return the value.  Should be no need to check limits
+		return output;
+	}
+}
+
+

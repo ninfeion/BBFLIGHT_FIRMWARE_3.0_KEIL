@@ -1,24 +1,45 @@
 #include "control.h"
 #include "pwm.h"
+#include "delay.h"
+
+static float dt = 0.0;
+static uint32_t timeForYawCalculate = 0;
 
 void pidControl(ImuData *tarData)
 {
+	dt = (currentTime() - timeForYawCalculate) /1000000.0;
+	timeForYawCalculate = currentTime();	
+	
 	tarData->pidRoll.lastError = tarData->pidRoll.preError;
 	tarData->pidRoll.preError  = tarData->actualRoll.newData - tarData->targetRoll;
 	// tarData->pidRoll.errorSum += tarData->pidRoll.preError;
-	tarData->pidRoll.pidPout = tarData->pidRoll.pidP * (tarData->pidRoll.preError);
+	tarData->pidRoll.pidPout = tarData->pidRoll.pidP * tarData->pidRoll.preError;
+	/** derivative term method 1 **/
 	// tarData->pidRoll.pidDout = tarData->pidRoll.pidD * (tarData->actualRoll.newData - tarData->actualRoll.lastData);
-	tarData->pidRoll.pidDout = tarData->pidRoll.pidD * tarData->gyroRaw.newData[1];
+	/** derivative term method 2 **/
+	// tarData->pidRoll.pidDout = tarData->pidRoll.pidD * tarData->gyroRaw.newData[0];
+	/** derivative term method 3 **/
+	tarData->pidRoll.pidDout = tarData->pidRoll.pidD * ((tarData->pidRoll.preError - tarData->pidRoll.lastError) / dt);
 	
 	tarData->pidPitch.lastError = tarData->pidPitch.preError;
 	tarData->pidPitch.preError  = tarData->actualPitch.newData - tarData->targetPitch;
 	// tarData->pidPitch.errorSum += tarData->pidPitch.preError;
-	tarData->pidPitch.pidPout = tarData->pidPitch.pidP * (tarData->actualPitch.newData - tarData->targetPitch);
+	tarData->pidPitch.pidPout = tarData->pidPitch.pidP * tarData->pidPitch.preError;
+	/** derivative term method 1 **/
 	// tarData->pidPitch.pidDout = tarData->pidPitch.pidD * (tarData->actualPitch.newData - tarData->actualPitch.lastData);
-	tarData->pidPitch.pidDout = tarData->pidPitch.pidD * tarData->gyroRaw.newData[0];
+	/** derivative term method 2 **/
+	// tarData->pidPitch.pidDout = tarData->pidPitch.pidD * tarData->gyroRaw.newData[1];
+	/** derivative term method 3 **/
+	tarData->pidPitch.pidDout = tarData->pidPitch.pidD * ((tarData->pidPitch.preError - tarData->pidPitch.lastError) / dt);
 	
+	tarData->pidYaw.lastError = tarData->pidYaw.preError;
+	tarData->pidYaw.preError  = tarData->actualYaw.newData - tarData->targetYaw;
+	/** derivative term method 1 **/
 	// tarData->pidYaw.pidDout = tarData->pidYaw.pidD * (tarData->actualYaw.newData - tarData->actualYaw.lastData);
-	tarData->pidYaw.pidDout = tarData->pidYaw.pidD * tarData->gyroRaw.newData[2];
+	/** derivative term method 2 **/
+	// tarData->pidYaw.pidDout = tarData->pidYaw.pidD * tarData->gyroRaw.newData[2];
+	/** derivative term method 3 **/
+	tarData->pidYaw.pidDout = tarData->pidYaw.pidD * ((tarData->pidYaw.preError - tarData->pidYaw.lastError) / dt);
 	
 	tarData->pidRoll.pidFinalOut  = tarData->pidRoll.pidPout  + tarData->pidRoll.pidIout  + tarData->pidRoll.pidDout;
 	tarData->pidPitch.pidFinalOut = tarData->pidPitch.pidPout + tarData->pidPitch.pidIout + tarData->pidPitch.pidDout;

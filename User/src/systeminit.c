@@ -1,15 +1,15 @@
 #include "systeminit.h"
 
 AcceptMess BBCom;
-//AcceptMess BBCom = {0xaa,0xaa,
-	//				0x00,0x00,0x00,0x00,0x00,
-		//			0,
-		//			0,0,0,0,
-		//			0,
-		//			0,
-		//			0,0,0,0,
-		//			0,0,
-		//			0xff,0xff};
+AcceptMess BBCom = {0xaa,0xaa,
+					0x00,0x00,0x00,0x00,0x00,
+					0,
+					0,0,0,0,
+					0,
+					0,
+					0,0,0,0,
+					0,0,
+					0xff,0xff};
 RespondMess BBMess = {0xaa, 0xaa,
 					  0,0,0,0,
 					  0,0,0,0,
@@ -19,7 +19,7 @@ RespondMess BBMess = {0xaa, 0xaa,
 			          0,
 	                  0xff,0xff};
 ImuData BBImu;			  	  
-SYSTEM_STATE BBSYSTEM;
+SYSTEM_STATE BBSystem;
 
 uint8_t sysclockInit(void)
 {

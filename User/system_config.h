@@ -13,10 +13,12 @@
 #define LedD_on    GPIO_SetBits(GPIOA, GPIO_Pin_5)
 #define LedD_off   GPIO_ResetBits(GPIOA, GPIO_Pin_5)
 
-//#define USB_DEBUG
+// #define USB_DEBUG
+// #define USE_MAG_PASSMODE
+#define BRO_ENABLED
 #define USE_LPF_FILTER
 #define SAMPLINGFREQ  200.0f
-#define LPFCUTOFFFREQ 50.0f
+#define LPFCUTOFFFREQ 30.0f
 
 #endif
 

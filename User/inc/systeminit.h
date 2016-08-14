@@ -17,6 +17,7 @@ typedef struct
 	uint32_t nrfExecPrd;
 	uint32_t imuExecPrd;
 	uint32_t idlePrd;
+	float temperature;
 }SYSTEM_STATE;
 
 typedef struct
@@ -134,6 +135,6 @@ extern AcceptMess BBCom;
 extern RespondMess BBMess;
 
 extern ImuData BBImu;
-extern SYSTEM_STATE BBSYSTEM;
+extern SYSTEM_STATE BBSystem;
 
 #endif

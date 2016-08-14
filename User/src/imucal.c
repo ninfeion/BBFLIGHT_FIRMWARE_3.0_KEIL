@@ -38,7 +38,7 @@ void imuUpdate(ImuData *tarData)
 	float halfex, halfey, halfez;
 	float qa, qb, qc;
 	
-	samplingTime = (currentTime() - timeForYawCalculate) /1000000.0;
+	samplingTime = (double)(currentTime() - timeForYawCalculate) /1000000.0;
 	timeForYawCalculate = currentTime();	
 
 	// 如果加速计各轴的数均是0，那么忽略该加速度数据。否则在加速计数据归一化处理的时候，会导致除以0的错误。

@@ -229,7 +229,7 @@ void NonlinearSO3AHRSupdate(float gx, float gy, float gz, float ax, float ay, fl
 
 #define so3_comp_params_Kp 1.0f
 #define so3_comp_params_Ki  0.05f
-static double dt = 0.0;
+static float dt = 0.0;
 static uint32_t timeForYawCalculate = 0;
 
 void IMUSO3Thread(ImuData *tarData)
