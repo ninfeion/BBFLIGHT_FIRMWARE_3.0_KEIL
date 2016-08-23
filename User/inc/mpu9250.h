@@ -4,6 +4,7 @@
 
 #include "stm32f10x.h"
 #include "systeminit.h"
+#include "system_config.h"
 
 //寄存器定义
 #define RA_SELF_TEST_X_GYRO			0X00
@@ -115,6 +116,17 @@
 #define AK8963_STATUS_DRDY      0x01
 #define AK8963_STATUS_DOR       0x02
 #define AK8963_STATUS_HOFL      0x08
+
+#define AK8963_POWER_DOWN             0x10
+#define AK8963_FUSE_ROM_ACCESS		  0x1F
+#define AK8963_SINGLE_MEASUREMENT 	  0x11
+#define AK8963_CONTINUOUS_MEASUREMENT 0x16 //MODE 2
+#define AK8963_DATA_READY            (0x01)
+#define AK8963_DATA_OVERRUN    		 (0x02)
+#define AK8963_OVERFLOW        		 (0x80)
+#define AK8963_DATA_ERROR     		 (0x40)
+
+#define AK8963_CNTL2_SRST 		      0x01
 
 /*************************************************************************
 |Bit      |   7   |   6   |   5   |   4   |   3   |   2   |   1   |   0   |
@@ -235,6 +247,6 @@ void READ_MPU9250_Bypass_MAG_RAW(int16_t *MAGDATA);
 void readMpu9250BypassMagRawStateMachineReady(uint8_t scale);
 void readMpu9250BypassMagRawStateMachineRead(int16_t *MAGDATA);
 
-void accelAndGyroOffset(ImuData *tarData);
+void imuCalibration(ImuData *tarData);
 
 #endif

@@ -52,7 +52,6 @@ void delay_current_us(uint32_t nus)
 {
 		uint32_t t0=currentTime();
 		while(currentTime() - t0 < nus);
-			
 }
 
 void delay_current_ms(uint32_t nms)

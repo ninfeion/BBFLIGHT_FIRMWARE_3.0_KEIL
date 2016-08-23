@@ -2,13 +2,13 @@
 #include "pwm.h"
 #include "delay.h"
 
-static float dt = 0.0;
-static uint32_t timeForYawCalculate = 0;
+static float derivativedt = 0.0;
+static uint32_t timeForPidCalculate = 0;
 
 void pidControl(ImuData *tarData)
 {
-	dt = (currentTime() - timeForYawCalculate) /1000000.0;
-	timeForYawCalculate = currentTime();	
+	derivativedt = (float)(currentTime() - timeForPidCalculate) /1000000.0;
+	timeForPidCalculate = currentTime();	
 	
 	tarData->pidRoll.lastError = tarData->pidRoll.preError;
 	tarData->pidRoll.preError  = tarData->actualRoll.newData - tarData->targetRoll;
@@ -19,7 +19,7 @@ void pidControl(ImuData *tarData)
 	/** derivative term method 2 **/
 	// tarData->pidRoll.pidDout = tarData->pidRoll.pidD * tarData->gyroRaw.newData[0];
 	/** derivative term method 3 **/
-	tarData->pidRoll.pidDout = tarData->pidRoll.pidD * ((tarData->pidRoll.preError - tarData->pidRoll.lastError) / dt);
+	tarData->pidRoll.pidDout = tarData->pidRoll.pidD * ((tarData->pidRoll.preError - tarData->pidRoll.lastError) / derivativedt);
 	
 	tarData->pidPitch.lastError = tarData->pidPitch.preError;
 	tarData->pidPitch.preError  = tarData->actualPitch.newData - tarData->targetPitch;
@@ -30,7 +30,7 @@ void pidControl(ImuData *tarData)
 	/** derivative term method 2 **/
 	// tarData->pidPitch.pidDout = tarData->pidPitch.pidD * tarData->gyroRaw.newData[1];
 	/** derivative term method 3 **/
-	tarData->pidPitch.pidDout = tarData->pidPitch.pidD * ((tarData->pidPitch.preError - tarData->pidPitch.lastError) / dt);
+	tarData->pidPitch.pidDout = tarData->pidPitch.pidD * ((tarData->pidPitch.preError - tarData->pidPitch.lastError) / derivativedt);
 	
 	tarData->pidYaw.lastError = tarData->pidYaw.preError;
 	tarData->pidYaw.preError  = tarData->actualYaw.newData - tarData->targetYaw;
@@ -39,7 +39,7 @@ void pidControl(ImuData *tarData)
 	/** derivative term method 2 **/
 	// tarData->pidYaw.pidDout = tarData->pidYaw.pidD * tarData->gyroRaw.newData[2];
 	/** derivative term method 3 **/
-	tarData->pidYaw.pidDout = tarData->pidYaw.pidD * ((tarData->pidYaw.preError - tarData->pidYaw.lastError) / dt);
+	tarData->pidYaw.pidDout = tarData->pidYaw.pidD * ((tarData->pidYaw.preError - tarData->pidYaw.lastError) / derivativedt);
 	
 	tarData->pidRoll.pidFinalOut  = tarData->pidRoll.pidPout  + tarData->pidRoll.pidIout  + tarData->pidRoll.pidDout;
 	tarData->pidPitch.pidFinalOut = tarData->pidPitch.pidPout + tarData->pidPitch.pidIout + tarData->pidPitch.pidDout;

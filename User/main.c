@@ -107,7 +107,7 @@ int main(void)
 	
 	memset (&BBImu, 0, sizeof(ImuData));
 	
-	accelAndGyroOffset(&BBImu);
+	imuCalibration(&BBImu);
 	
 	#ifdef USE_LPF_FILTER
 		LPF2pSetCutoffFreq_1(SAMPLINGFREQ, LPFCUTOFFFREQ);	
@@ -124,12 +124,12 @@ int main(void)
 		#endif
 	#endif
 	
-	BBImu.pidPitch.pidP    = 0.0;   // 7.1;   //  5.0
-	BBImu.pidPitch.pidD    = 0.0;   // 7.8;   // 11.0; // 166.0
+	BBImu.pidPitch.pidP    = 4.2;   // 7.1;   //  5.0
+	BBImu.pidPitch.pidD    = 2.7;   // 7.8;   // 11.0; // 166.0
 	BBImu.pidPitch.pidI    = 0.0;
 	
-	BBImu.pidRoll.pidP    = 7.2;   // 4.5
-	BBImu.pidRoll.pidD    = 5.0;   // 11.0; // 167.0
+	BBImu.pidRoll.pidP    = 4.2;   // 4.5
+	BBImu.pidRoll.pidD    = 2.7;   // 11.0; // 167.0
 	BBImu.pidRoll.pidI    = 0.0;
 
 	BBImu.pidYaw.pidP    = 0.0;
@@ -189,7 +189,6 @@ int main(void)
 			radioFlag = 0;
 			BBSystem.nrfExecPrd = currentTime() - timeTemp;
 			BBSystem.idlePrd = currentTime() - BBSystem.nrfExecPrd - whileStart;
-			continue;
 		}		
 		#ifdef USE_MAG_PASSMODE 		
 			switch(magStatus)
@@ -209,9 +208,9 @@ int main(void)
 									   BBImu.magRaw[i] = (float)MAGDATA[i]; // *MAGLSB; // Binary
 								   }
 								   #ifdef USE_LPF_FILTER
-									   BBImu.magRaw[0] = LPF2pApply_7(BBImu.magRaw[0]); 
-									   BBImu.magRaw[1] = LPF2pApply_8(BBImu.magRaw[1]);
-									   BBImu.magRaw[2] = LPF2pApply_9(BBImu.magRaw[2]);
+									   BBImu.magRaw[0] = LPF2pApply_7((float)BBImu.magRaw[0]); 
+									   BBImu.magRaw[1] = LPF2pApply_8((float)BBImu.magRaw[1]);
+									   BBImu.magRaw[2] = LPF2pApply_9((float)BBImu.magRaw[2]);
 								   #endif
 								   magStatus = ready;
 								   break;
@@ -240,7 +239,7 @@ int main(void)
 									   }
 									   break;
 				case presreloadfinish: ms5611FinalCalculation(ms5611PresRaw, ms5611TempRaw, MS5611_PROM, ms5611FinalData);
-									   BBSystem.temperature = ms5611FinalData[0];
+									   BBSystem.temperature = ms5611FinalData[0] * 0.01f;
 									   BBMess.broVal = ms5611FinalData[1] * 0.01f;
 									   presStatus = presready;
 					                   break;
@@ -258,9 +257,9 @@ int main(void)
 						
 				for(i=0; i<3; i++)
 				{
-					BBImu.accelRaw[i]         = (float)ACCELDATA[i] - BBImu.accelOffset[i];       // /ACCELLSB; // Binary
+					BBImu.accelRaw[i]         = (float)ACCELDATA[i]; // - BBImu.accelOffset[i]; // /ACCELLSB; // Binary
 					BBImu.gyroRaw.lastData[i] = BBImu.gyroRaw.newData[i];
-					BBImu.gyroRaw.newData[i]  = ((float)GYRODATA[i] - BBImu.gyroOffset[i]) /GYROLSB;            // Degree
+					BBImu.gyroRaw.newData[i]  = ((float)(GYRODATA[i] - BBImu.gyroOffset[i])) /GYROLSB;        // Radian
 				}
 				
 				#ifdef USE_LPF_FILTER
@@ -272,15 +271,13 @@ int main(void)
 					BBImu.gyroRaw.newData[1] = LPF2pApply_5(BBImu.gyroRaw.newData[1]);
 					BBImu.gyroRaw.newData[2] = LPF2pApply_6(BBImu.gyroRaw.newData[2]);
 				#endif				
-				
-				// imuUpdate(&BBImu);
-				IMUSO3Thread(&BBImu);
-			}
-
+			}			
+			// imuUpdate(&BBImu);
+			IMUSO3Thread(&BBImu);
+			
 			attitudeUpdateFlag = 0;
-			BBSystem.imuExecPrd = currentTime() - timeTemp;
+			BBSystem.imuExecPrd = currentTime() - timeTemp;	
 			BBSystem.idlePrd = currentTime() - BBSystem.imuExecPrd - whileStart;
-			continue;
 		}		
 		if(motorUpdateFlag == 1)
 		{
@@ -288,14 +285,20 @@ int main(void)
 			motorUpdate(&BBImu, &BBMess);	
 			
 			motorUpdateFlag = 0;
-			continue;
 		}
 		if(batteryCheckFlag == 1)
 		{
-			BBMess.battery = adcBatteryConversion();
+			BBMess.battery   = adcBatteryConversion();
+			if(BBMess.battery >= 3300)
+			{
+				BBSystem.BATTERY = 1;
+			}
+			else
+			{
+				BBSystem.BATTERY = 0;
+			}
 			
 			batteryCheckFlag = 0;
-			continue;
 		}
 	}		
 }
@@ -334,23 +337,23 @@ void nrfReceiveResult(uint8_t res)
 			BBImu.targetYaw = BBCom.yaw;
 			switch(BBCom.pidType)
 			{
-				case 1: BBImu.pidPitch.pidP = (float)BBCom.pidValue;
+				case 1: BBImu.pidPitch.pidP = (float)BBCom.pidValue / 10.0;
 						break;
 				case 2: BBImu.pidPitch.pidI = (float)BBCom.pidValue;
 						break;
-				case 3: BBImu.pidPitch.pidD = (float)BBCom.pidValue;
+				case 3: BBImu.pidPitch.pidD = (float)BBCom.pidValue / 10.0;
 						break;
-				case 4: BBImu.pidRoll.pidP = (float)BBCom.pidValue;
+				case 4: BBImu.pidRoll.pidP = (float)BBCom.pidValue / 10.0;
 						break;
 				case 5: BBImu.pidRoll.pidI = (float)BBCom.pidValue;
 						break;
-				case 6: BBImu.pidRoll.pidD = (float)BBCom.pidValue;
+				case 6: BBImu.pidRoll.pidD = (float)BBCom.pidValue / 10.0;
 						break;
-				case 7: BBImu.pidYaw.pidP = (float)BBCom.pidValue;
+				case 7: BBImu.pidYaw.pidP = (float)BBCom.pidValue / 10.0;
 						break;
 				case 8: BBImu.pidYaw.pidI = (float)BBCom.pidValue;
 						break;
-				case 9: BBImu.pidYaw.pidD = (float)BBCom.pidValue;
+				case 9: BBImu.pidYaw.pidD = (float)BBCom.pidValue / 10.0;
 						break;
 			}
 			

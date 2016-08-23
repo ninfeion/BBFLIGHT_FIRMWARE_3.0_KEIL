@@ -24,7 +24,7 @@ uint8_t I2C_ReceiveByte(void);
 bool Single_Write(uint8_t SlaveAddress,uint8_t REG_Address,uint8_t REG_data);
 uint8_t Single_Read(uint8_t SlaveAddress,uint8_t REG_Address);
 uint8_t Multiple_Read(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t length, uint8_t *DATA);
-
+uint8_t Multiple_Write(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t length, uint8_t *DATA);
 
 #endif
 

@@ -25,24 +25,33 @@ void mpu9250Init(void)
 	
 	GPIO_ResetBits(GPIOB, GPIO_Pin_4);
 	
-	Single_Write(MPU9250_ADDRESS,RA_PWR_MGMT_1, 0x00);	//解除休眠状态
-	delay_ms(10);//to wait for 9250 reset done
-	Single_Write(MPU9250_ADDRESS,RA_SMPLRT_DIV, 0x00);  //0x00	SAMPLE_RATE=Internal_Sample_Rate / (1 + SMPLRT_DIV)
-	Single_Write(MPU9250_ADDRESS,RA_CONFIG, 0x02); // 0x02	Set gyro sample rate to 1 kHz and DLPF to 92 Hz
-	Single_Write(MPU9250_ADDRESS,RA_GYRO_CONFIG, 0x18); //2000d/s
-	Single_Write(MPU9250_ADDRESS,RA_ACCEL_CONFIG_1, 0x18); //16g range
+	Single_Write(MPU9250_ADDRESS,RA_PWR_MGMT_1, 0x00);	   // 解除休眠状态
+	delay_ms(10);                                          // to wait for 9250 reset done
+	Single_Write(MPU9250_ADDRESS,RA_SMPLRT_DIV, 0x00);     // 0x00	SAMPLE_RATE=Internal_Sample_Rate / (1 + SMPLRT_DIV)
+	Single_Write(MPU9250_ADDRESS,RA_CONFIG, 0x02);         // 0x02	Set gyro sample rate to 1 kHz and DLPF to 92 Hz
+	Single_Write(MPU9250_ADDRESS,RA_GYRO_CONFIG, 0x18);    // 2000d/s
+	Single_Write(MPU9250_ADDRESS,RA_ACCEL_CONFIG_1, 0x18); // 16g range
 	Single_Write(MPU9250_ADDRESS,RA_ACCEL_CONFIG_2, 0x02); // Set accelerometer rate to 1 kHz and bandwidth to 92 Hz
 	
 	#ifdef MPU_PASSMODE_ENABLED
-		Single_Write(MPU9250_ADDRESS,RA_INT_PIN_CFG,0x02);//turn on Bypass Mode 
+		Single_Write(MPU9250_ADDRESS,RA_INT_PIN_CFG,0x02); // turn on Bypass Mode 
 		delay_ms(10);
 	#endif
+	
+	#ifdef USE_MAG_PASSMODE
+		Single_Write(MAG_ADDRESS,AK8963_CNTL2, AK8963_CNTL2_SRST); // reset AK8963
+		delay_ms(1);
+		Single_Write(MAG_ADDRESS, AK8963_CNTL,AK8963_POWER_DOWN); // into power down
+		delay_ms(1);
+	#endif
 }
+
 
 uint8_t Get_MPU9250_ID(void)
 {
 	return Single_Read(MPU9250_ADDRESS, RA_WHO_AM_I);
 }
+
 
 uint8_t Get_AK8963_ID_Bypass(void)
 {
@@ -134,10 +143,11 @@ void readMpu9250BypassMagRawStateMachineRead(int16_t *MAGDATA)
 }
 
 
-void accelAndGyroOffset(ImuData *tarData)
+void imuCalibration(ImuData *tarData)
 {
 	uint8_t i,ii;
 	int16_t accelRaw[3], gyroRaw[3];
+	uint8_t magProm[3];
 	int32_t accelSum[3] = {0, 0, 0};
 	int32_t gyroSum[3]  = {0, 0, 0};
 	
@@ -159,6 +169,14 @@ void accelAndGyroOffset(ImuData *tarData)
 		tarData->gyroOffset[i]  = (int16_t)(gyroSum[i]/30);
 	}
 	tarData->accelOffset[2] = tarData->accelOffset[2] - (int16_t)ACCELLSB; // Z axis calibration
+	
+	Single_Write(MAG_ADDRESS, AK8963_CNTL1, AK8963_FUSE_ROM_ACCESS);
+	delay_ms(10);
+    Multiple_Read(MAG_ADDRESS , AK8963_ASAX, 3, magProm);
+	for(i=0; i<3; i++)
+	{
+		tarData->magASA[i] = (int16_t)magProm[i] + 128;
+	}
 }
 		
 

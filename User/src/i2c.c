@@ -196,5 +196,21 @@ uint8_t Multiple_Read(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t length,
 }
 
 
+uint8_t Multiple_Write(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t length, uint8_t *DATA)
+{
+	uint8_t count = 0;
+	I2C_Start();
+	I2C_SendByte(SlaveAddress);	   
+	I2C_WaitAck();
+	I2C_SendByte(REG_Address);   
+	I2C_WaitAck();	  
+	for(count=0;count<length;count++)
+	{
+		I2C_SendByte(DATA[count]); 
+		I2C_WaitAck(); 
+	 }
+	I2C_Stop();
 
+    return 1; 
+}
 

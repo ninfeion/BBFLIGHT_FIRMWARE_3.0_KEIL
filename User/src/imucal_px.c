@@ -230,7 +230,7 @@ void NonlinearSO3AHRSupdate(float gx, float gy, float gz, float ax, float ay, fl
 #define so3_comp_params_Kp 1.0f
 #define so3_comp_params_Ki  0.05f
 static float dt = 0.0;
-static uint32_t timeForYawCalculate = 0;
+static uint32_t timeForCalculate = 0;
 
 void IMUSO3Thread(ImuData *tarData)
 {
@@ -239,12 +239,12 @@ void IMUSO3Thread(ImuData *tarData)
 	
 	/* Initialization */
 	float Rot_matrix[9] = {1.f,  0.0f,  0.0f, 0.0f,  1.f,  0.0f, 0.0f,  0.0f,  1.f }; /**< init: identity matrix */
-	float acc[3] = {0.0f, 0.0f, 0.0f};		                                          //m/s^2
+	float acc[3]  = {0.0f, 0.0f, 0.0f};		                                          //m/s^2
 	float gyro[3] = {0.0f, 0.0f, 0.0f};		                                          //rad/s
-	float mag[3] = {0.0f, 0.0f, 0.0f};		
+	float mag[3]  = {0.0f, 0.0f, 0.0f};		
 	
-	dt = (currentTime() - timeForYawCalculate) /1000000.0;
-	timeForYawCalculate = currentTime();	
+	dt = (float)(currentTime() - timeForCalculate) /1000000.0;
+	timeForCalculate = currentTime();	
 
 	gyro[0] = tarData->gyroRaw.newData[0] / RADTODEG;
 	gyro[1] = tarData->gyroRaw.newData[1] / RADTODEG;

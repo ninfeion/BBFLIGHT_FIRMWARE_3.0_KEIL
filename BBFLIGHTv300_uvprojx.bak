@@ -355,13 +355,13 @@
             <wLevel>0</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
-            <uC99>0</uC99>
+            <uC99>1</uC99>
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>.\User;.\RTE;.\RTE\Device\STM32F103C8;.\User\USB;.\User\USB\USBCDC;.\User\USB\STM32_USB-FS-Device_Driver\inc;.\User\USB\inc;.\User\inc</IncludePath>
+              <IncludePath>.\User;.\RTE;.\RTE\Device\STM32F103C8;.\User\USB;.\User\USB\USBCDC;.\User\USB\STM32_USB-FS-Device_Driver\inc;.\User\USB\inc;.\User\inc;.\User\DMP\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -484,6 +484,11 @@
               <FileType>1</FileType>
               <FilePath>.\User\src\usb2com.c</FilePath>
             </File>
+            <File>
+              <FileName>FastMath.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\src\FastMath.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -563,6 +568,21 @@
               <FileName>usb_sil.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\USB\STM32_USB-FS-Device_Driver\src\usb_sil.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>MPU_DMP</GroupName>
+          <Files>
+            <File>
+              <FileName>inv_mpu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\DMP\src\inv_mpu.c</FilePath>
+            </File>
+            <File>
+              <FileName>inv_mpu_dmp_motion_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\DMP\src\inv_mpu_dmp_motion_driver.c</FilePath>
             </File>
           </Files>
         </Group>

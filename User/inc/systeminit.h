@@ -29,8 +29,9 @@ typedef struct
 		float lastData[3];
 	}gyroRaw;
 	float magRaw[3];
-	float accelOffset[3];
-	float gyroOffset[3];
+	int16_t accelOffset[3];
+	int16_t gyroOffset[3];
+	int16_t magASA[3]; 
 	int16_t targetThrust;
 	float targetPitch;
 	float targetRoll;

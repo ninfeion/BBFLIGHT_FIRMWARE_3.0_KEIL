@@ -8,31 +8,31 @@ volatile uint16_t radioPeriodCount, attitudeUpdatePeriodCount, rxTimeOutCount, b
 			
 void TIM1_UP_IRQHandler(void)
 {
-	if(rxTimeOutCount ++ == 1500 )
+	if(rxTimeOutCount ++ == 1500)
 	{
 		rxTimeOutFlag = 1;
 	}	
-	
 	if(radioPeriodCount ++ == 20)
 	{
 		radioFlag = 1;
 		radioPeriodCount = 0;
 	}
-	if(attitudeUpdatePeriodCount ++ == 5)
+	if(attitudeUpdatePeriodCount ++ == 4)
 	{
 		attitudeUpdateFlag = 1;
 		attitudeUpdatePeriodCount = 0;
+	}
+	if(motorUpdateCount ++ == 20)
+	{
+		motorUpdateFlag = 1;
+		motorUpdateCount = 0;
 	}
 	if(batteryCheckCount ++ == 100)
 	{
 		batteryCheckFlag = 1;
 		batteryCheckCount = 0;
 	}
-	if(motorUpdateCount ++ == 5)
-	{
-		motorUpdateFlag = 1;
-		motorUpdateCount = 0;
-	}
+
 	TIM_ClearITPendingBit(TIM1, TIM_FLAG_Update); 
 }
 
